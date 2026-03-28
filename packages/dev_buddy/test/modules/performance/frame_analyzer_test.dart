@@ -91,4 +91,96 @@ void main() {
       expect(result.isJank, isFalse);
     });
   });
+
+  group('FrameAnalyzer vsync-based FPS', () {
+    late FrameAnalyzer analyzer;
+
+    setUp(() {
+      analyzer = FrameAnalyzer(windowSize: 10);
+    });
+
+    test('calculates FPS from vsync intervals on 60Hz', () {
+      // Simulate 60Hz: vsync every 16667us (16.7ms)
+      const interval = 16667; // microseconds
+      for (var i = 0; i < 10; i++) {
+        analyzer.addFrameDuration(const Duration(milliseconds: 7));
+        analyzer.recordVsyncTimestamp(i * interval);
+      }
+      // Should be ~60 FPS based on vsync intervals, NOT ~142 from 7ms build
+      expect(analyzer.averageFps, closeTo(60.0, 2.0));
+    });
+
+    test('calculates FPS from vsync intervals on 120Hz', () {
+      // Simulate 120Hz: vsync every 8333us (8.3ms)
+      const interval = 8333;
+      for (var i = 0; i < 10; i++) {
+        analyzer.addFrameDuration(const Duration(milliseconds: 5));
+        analyzer.recordVsyncTimestamp(i * interval);
+      }
+      expect(analyzer.averageFps, closeTo(120.0, 2.0));
+    });
+
+    test('detects FPS drop from vsync intervals', () {
+      // First 5 frames at 60Hz, then 5 at 30Hz (33ms intervals)
+      for (var i = 0; i < 5; i++) {
+        analyzer.addFrameDuration(const Duration(milliseconds: 16));
+        analyzer.recordVsyncTimestamp(i * 16667);
+      }
+      for (var i = 5; i < 10; i++) {
+        analyzer.addFrameDuration(const Duration(milliseconds: 30));
+        analyzer.recordVsyncTimestamp(5 * 16667 + (i - 5) * 33333);
+      }
+      // Average should be between 30 and 60 FPS
+      expect(analyzer.averageFps, greaterThan(30));
+      expect(analyzer.averageFps, lessThan(65));
+    });
+
+    test('ignores idle gaps larger than 100ms', () {
+      // Normal frames
+      for (var i = 0; i < 5; i++) {
+        analyzer.addFrameDuration(const Duration(milliseconds: 10));
+        analyzer.recordVsyncTimestamp(i * 16667);
+      }
+      // Big idle gap (500ms)
+      analyzer.addFrameDuration(const Duration(milliseconds: 10));
+      analyzer.recordVsyncTimestamp(5 * 16667 + 500000);
+      // More normal frames after gap
+      for (var i = 0; i < 4; i++) {
+        analyzer.addFrameDuration(const Duration(milliseconds: 10));
+        analyzer.recordVsyncTimestamp(5 * 16667 + 500000 + (i + 1) * 16667);
+      }
+      // FPS should still be ~60, not dragged down by idle gap
+      expect(analyzer.averageFps, closeTo(60.0, 5.0));
+    });
+
+    test('falls back to build-time FPS without vsync data', () {
+      // Only add build durations, no vsync timestamps
+      for (var i = 0; i < 10; i++) {
+        analyzer.addFrameDuration(const Duration(milliseconds: 16));
+      }
+      // Should use build-time fallback: 1000/16 = 62.5
+      expect(analyzer.averageFps, closeTo(62.5, 1.0));
+    });
+
+    test('vsync FPS preferred over build-time FPS', () {
+      // Build time says 7ms = ~142 FPS, but vsync says 60Hz
+      for (var i = 0; i < 10; i++) {
+        analyzer.addFrameDuration(const Duration(milliseconds: 7));
+        analyzer.recordVsyncTimestamp(i * 16667); // 60Hz vsync
+      }
+      // vsync wins: ~60 FPS, not ~142
+      expect(analyzer.averageFps, closeTo(60.0, 2.0));
+      expect(analyzer.averageFps, lessThan(70.0));
+    });
+
+    test('reset clears vsync state', () {
+      analyzer.addFrameDuration(const Duration(milliseconds: 16));
+      analyzer.recordVsyncTimestamp(0);
+      analyzer.addFrameDuration(const Duration(milliseconds: 16));
+      analyzer.recordVsyncTimestamp(16667);
+      analyzer.reset();
+      expect(analyzer.frameCount, equals(0));
+      expect(analyzer.averageFps, equals(0));
+    });
+  });
 }

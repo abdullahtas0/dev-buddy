@@ -85,5 +85,27 @@ void main() {
     test('growthRate with empty samples returns 0', () {
       expect(sampler.growthRate, equals(0));
     });
+
+    test('peakMb returns highest sample in window', () {
+      sampler.addSample(100);
+      sampler.addSample(250);
+      sampler.addSample(150);
+      sampler.addSample(200);
+      expect(sampler.peakMb, equals(250));
+    });
+
+    test('peakMb returns 0 for empty sampler', () {
+      expect(sampler.peakMb, equals(0));
+    });
+
+    test('peakMb updates when peak is evicted from window', () {
+      sampler.addSample(500); // will be evicted
+      sampler.addSample(100);
+      sampler.addSample(110);
+      sampler.addSample(120);
+      sampler.addSample(130);
+      sampler.addSample(140); // evicts 500
+      expect(sampler.peakMb, equals(140)); // 500 is gone
+    });
   });
 }
