@@ -75,6 +75,16 @@ class MemoryModule extends DevBuddyModule {
   }
 
   @override
+  Map<String, dynamic> get currentState => {
+    'id': id,
+    'name': name,
+    'current_rss_mb': _sampler.latestMb,
+    'peak_rss_mb': _sampler.peakMb,
+    'growth_rate_mb_per_min': _sampler.growthRate,
+    'sample_count': _sampler.samples.length,
+  };
+
+  @override
   Widget buildTab(BuildContext context, List<DevBuddyEvent> events) {
     return Padding(
       padding: const EdgeInsets.all(12),

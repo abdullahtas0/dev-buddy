@@ -89,7 +89,8 @@ class RebuildTrackerModule extends DevBuddyModule {
 
   @override
   Widget buildTab(BuildContext context, List<DevBuddyEvent> events) {
-    final top = _counter.topRebuildersAsString(10);
+    final top = _counter.topRebuildersPerSecond(10);
+    final secs = _counter.sessionDuration.inSeconds;
 
     return Padding(
       padding: const EdgeInsets.all(12),
@@ -97,9 +98,19 @@ class RebuildTrackerModule extends DevBuddyModule {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text(
-            'Top Rebuilders',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+          Row(
+            children: [
+              const Text(
+                'Top Rebuilders',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+              ),
+              const Spacer(),
+              if (secs > 0)
+                Text(
+                  '${secs}s tracked',
+                  style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
+                ),
+            ],
           ),
           const SizedBox(height: 8),
           if (top.isEmpty)
@@ -127,19 +138,15 @@ class RebuildTrackerModule extends DevBuddyModule {
                         vertical: 2,
                       ),
                       decoration: BoxDecoration(
-                        color: entry.value > 50
-                            ? Colors.red.shade50
-                            : Colors.grey.shade100,
+                        color: Colors.grey.shade100,
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
-                        '${entry.value}x',
+                        entry.value,
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 11,
                           fontWeight: FontWeight.w600,
-                          color: entry.value > 50
-                              ? Colors.red
-                              : Colors.grey.shade700,
+                          color: Colors.grey.shade700,
                         ),
                       ),
                     ),

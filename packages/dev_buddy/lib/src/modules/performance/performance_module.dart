@@ -25,8 +25,32 @@ class PerformanceModule extends DevBuddyModule {
   late void Function(DevBuddyEvent) _onEvent;
   int _consecutiveJanks = 0;
 
+  /// When true, the diagnostic panel overlay is visible.
+  /// Jank events are suppressed during this time to avoid the Observer Effect
+  /// where the panel itself causes the jank it's measuring.
+  bool _panelOpen = false;
+
+  /// Call when the diagnostic panel is opened/closed.
+  /// Resets the consecutive jank counter to avoid inflated counts
+  /// caused by the panel's own rendering overhead.
+  void setPanelOpen(bool open) {
+    _panelOpen = open;
+    if (open) _consecutiveJanks = 0;
+  }
+
   /// Current FPS value for the overlay pill. Exposed for the overlay widget.
+  /// FPS is always tracked (even with panel open) for accurate pill display.
   double get currentFps => _analyzer.averageFps;
+
+  @override
+  Map<String, dynamic> get currentState => {
+    'id': id,
+    'name': name,
+    'current_fps': _analyzer.averageFps,
+    'frame_count': _analyzer.frameCount,
+    'consecutive_janks': _consecutiveJanks,
+    'panel_open': _panelOpen,
+  };
 
   @override
   void initialize({
@@ -58,6 +82,11 @@ class PerformanceModule extends DevBuddyModule {
         );
 
         if (result.isJank) {
+          // Suppress jank events when panel is open (Observer Effect).
+          // FPS tracking continues for the pill, but we don't emit
+          // diagnostic events about jank caused by the panel itself.
+          if (_panelOpen) continue;
+
           _consecutiveJanks++;
           final evaluation = _jankDetector.evaluate(
             durationMs: result.durationMs,
