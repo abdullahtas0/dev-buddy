@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 ## [0.2.1] - 2026-03-28
 
 ### Added
+- **MCP server bridge** — `DevBuddyDiagnosticServer` (debug-only HTTP on localhost:8585) + `bin/server.dart` (stdin/stdout JSON-RPC) for Claude Code / Cursor integration
 - **Typed event metadata** — Sealed `EventMetadata` hierarchy (Performance, Network, Rebuild, Memory, Correlation, Custom) with backwards-compatible `metadata` Map accessor
 - **MCP pagination** — `offset` parameter on `search_events`, `search_network`, `search_state` tools
 - **Correlation runtime API** — `addRule()`, `removeRule()`, `replaceRules()` for dynamic rule management
@@ -12,21 +13,27 @@ All notable changes to this project will be documented in this file.
 - **HTTP adapter streaming safety** — `maxCaptureBytes` threshold (10MB default); responses above threshold pass through without buffering
 - **EventBus monitoring** — `isDisposed`, `utilizationPercent` properties for backpressure awareness
 - **StateStore version guard** — Optional `sourceVersion` parameter prevents hash collision false negatives
-- 50+ new stress tests (10K events, budget pressure, 5000+ event correlation evaluation)
-- Per-package CHANGELOG.md for engine, bloc, mcp, riverpod, devtools
-- Per-package README.md for bloc, mcp, riverpod, devtools
+- **Module state exposure** — `PerformanceModule.currentState` (FPS, frame count, jank count) and `MemoryModule.currentState` (RSS, peak, growth rate) for MCP tools
+- **MemorySampler.peakMb** — Peak memory in current sampling window
+- **RebuildCounter per-second rate** — `topRebuildersPerSecond()` with formatted totals (K/M suffix)
+- 70+ new tests (stress, vsync FPS, typed metadata, correlation extensibility, peakMb, rebuild rate)
+- Per-package CHANGELOG.md and README.md for all packages
+- GitHub issue/PR templates
+- Animated demo GIF in README
 
 ### Changed
+- **FPS calculation (vsync-based)** — Uses vsync-to-vsync intervals instead of CPU build time. 7ms frame on 60Hz correctly reports ~60 FPS (was ~142). Validated against DevTools: delta < 2 FPS
 - **EventBus O(1) performance** — Switched from `insert(0, ...)` to `add()` + reversed view
 - **Dependency inversion** — `dev_buddy_dio` and `dev_buddy_http` now depend on `dev_buddy_engine` (pure Dart) instead of `dev_buddy` (Flutter)
 - **Dio request tracking** — Replaced hashCode-based request ID with atomic counter + identityHashCode
 - **Diff truncation** — Riverpod/BLoC observers truncate diffs to `maxDiffLength` (1024 chars) to prevent StateStore bloat
-- **Correlation constants** — Extracted magic numbers to named constants (`networkJankWindowMs`, `authFailureThreshold`, `largeResponseThresholdBytes`)
-- All packages aligned to version 0.2.0 (dev_buddy, dev_buddy_dio, dev_buddy_http were at 0.1.0)
+- **Correlation constants** — Extracted magic numbers to named constants
+- All packages aligned to version 0.2.0
 - Publish workflow now includes all 8 packages (was 3)
-- Example app uses root analysis_options.yaml
 
 ### Fixed
+- **Observer Effect** — Panel opening no longer inflates jank counts (was 4674+ consecutive janks, now resets on panel open)
+- **FPS accuracy** — Idle gaps >100ms excluded from FPS window (prevents false low readings)
 - **DevTools error safety** — All service extension handlers wrapped in `_safeHandle()` try-catch
 - **NetworkModule memory leak** — Added periodic cleanup timer (60s) for request list
 - **HTTP adapter OOM** — Large responses no longer buffered entirely in RAM
