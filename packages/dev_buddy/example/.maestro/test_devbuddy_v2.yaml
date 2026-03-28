@@ -1,73 +1,48 @@
 appId: com.devbuddy.devBuddyExample
 ---
 
-# DevBuddy v2.0 Full E2E Test
+# ShopBuddy E2E Demo — DevBuddy diagnostics on a real e-commerce app
 
 - launchApp
 - waitForAnimationToEnd
 - extendedWaitUntil:
-    visible: "DevBuddy Demos"
+    visible: "ShopBuddy"
     timeout: 15000
 
-# === HOME SCREEN ===
-- assertVisible: "DevBuddy Demos"
-- assertVisible: "Jank Demo.*"
-- takeScreenshot: v2_01_home
-
-# === JANK DEMO ===
-- tapOn: "Jank Demo.*"
-- waitForAnimationToEnd
-- takeScreenshot: v2_02_jank
+# === PRODUCT LIST ===
+- assertVisible: "ShopBuddy"
+- takeScreenshot: demo_01_shop
 - scroll
-- takeScreenshot: v2_03_jank_scrolled
-- back
-- extendedWaitUntil:
-    visible: "DevBuddy Demos"
-    timeout: 10000
+- takeScreenshot: demo_02_scrolled
 
-# === ERROR DEMO ===
-- tapOn: "Error Demo.*"
+# === TAP PRODUCT ===
+- scrollUntilVisible:
+    element: "Wireless Headphones.*"
+    direction: UP
+- tapOn: "Wireless Headphones.*"
 - waitForAnimationToEnd
-- takeScreenshot: v2_04_error
+- takeScreenshot: demo_03_detail
+- tapOn: "Add to Cart"
+- waitForAnimationToEnd
 - back
-- extendedWaitUntil:
-    visible: "DevBuddy Demos"
-    timeout: 10000
-
-# === NETWORK DEMO ===
-- tapOn: "Network Demo.*"
 - waitForAnimationToEnd
-- takeScreenshot: v2_05_network
-- back
-- extendedWaitUntil:
-    visible: "DevBuddy Demos"
-    timeout: 10000
 
-# Scroll to v2.0 features
-- scroll
+# === CART TAB ===
+- tapOn: "Cart"
+- waitForAnimationToEnd
+- takeScreenshot: demo_04_cart
 
-# === ENGINE SNAPSHOT DEMO ===
-- tapOn: "Engine Snapshot.*"
+# === INSPECTOR TAB ===
+- tapOn: "Inspector"
 - waitForAnimationToEnd
-- tapOn: "Get Snapshot"
+- takeScreenshot: demo_05_inspector
+- tapOn: "Snapshot"
 - waitForAnimationToEnd
-- takeScreenshot: v2_06_engine_snapshot
-- back
-- extendedWaitUntil:
-    visible: "DevBuddy Demos"
-    timeout: 10000
-
-# === CORRELATION DEMO ===
-- scroll
-- tapOn: "Correlation Demo.*"
-- waitForAnimationToEnd
-- takeScreenshot: v2_07_correlation
-- back
-- extendedWaitUntil:
-    visible: "DevBuddy Demos"
-    timeout: 10000
+- takeScreenshot: demo_06_snapshot
 
 # === DEVBUDDY PANEL ===
+- tapOn: "Shop"
+- waitForAnimationToEnd
 - tapOn: ".*FPS.*"
 - waitForAnimationToEnd
-- takeScreenshot: v2_08_panel
+- takeScreenshot: demo_07_panel
