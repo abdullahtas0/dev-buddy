@@ -6,8 +6,8 @@ Dio interceptor adapter for [DevBuddy](https://pub.dev/packages/dev_buddy) - cap
 
 ```yaml
 dependencies:
-  dev_buddy: ^0.1.0
-  dev_buddy_dio: ^0.1.0
+  dev_buddy: ^0.2.0
+  dev_buddy_dio: ^0.2.0
   dio: ^5.0.0
 ```
 

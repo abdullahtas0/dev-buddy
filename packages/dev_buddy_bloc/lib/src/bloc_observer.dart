@@ -16,13 +16,21 @@ class DevBuddyBlocObserver extends BlocObserver {
   /// Optional serializer for custom state types.
   final String Function(Object? value)? serializer;
 
+  /// Maximum length for diff strings. Prevents StateStore budget bloat
+  /// from large state objects. Default: 1024 characters.
+  final int maxDiffLength;
+
   DevBuddyBlocObserver({
     required StateStore stateStore,
     this.serializer,
+    this.maxDiffLength = 1024,
   }) : _stateStore = stateStore;
 
   @override
-  void onTransition(Bloc<dynamic, dynamic> bloc, Transition<dynamic, dynamic> transition) {
+  void onTransition(
+    Bloc<dynamic, dynamic> bloc,
+    Transition<dynamic, dynamic> transition,
+  ) {
     super.onTransition(bloc, transition);
 
     final source = 'bloc:${bloc.runtimeType}';
@@ -82,12 +90,16 @@ class DevBuddyBlocObserver extends BlocObserver {
   String? _computeDiff(Object? previous, Object? current) {
     if (previous == null) return null;
     try {
-      return jsonEncode({
-        'from': previous.toString(),
-        'to': current.toString(),
-      });
+      final fromStr = _truncate(previous.toString());
+      final toStr = _truncate(current.toString());
+      return jsonEncode({'from': fromStr, 'to': toStr});
     } catch (_) {
       return '{"from": "${previous.runtimeType}", "to": "${current.runtimeType}"}';
     }
+  }
+
+  String _truncate(String value) {
+    if (value.length <= maxDiffLength) return value;
+    return '${value.substring(0, maxDiffLength)}... [TRUNCATED]';
   }
 }

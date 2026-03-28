@@ -21,7 +21,9 @@ class CartModel extends ChangeNotifier {
   double get totalPrice => _items.fold(0.0, (sum, item) => sum + item.total);
 
   void addProduct(Product product) {
-    final existing = _items.where((i) => i.product.id == product.id).firstOrNull;
+    final existing = _items
+        .where((i) => i.product.id == product.id)
+        .firstOrNull;
     if (existing != null) {
       existing.quantity++;
     } else {

@@ -88,7 +88,11 @@ void main() {
     });
 
     test('handles empty lines', () {
-      final lines = ['', '   ', '{"t":"2026-03-28T12:00:00.000","type":"event","module":"test"}'];
+      final lines = [
+        '',
+        '   ',
+        '{"t":"2026-03-28T12:00:00.000","type":"event","module":"test"}',
+      ];
       final report = CrashReport.fromJsonLines(lines);
       expect(report.auditTrail, hasLength(1));
     });

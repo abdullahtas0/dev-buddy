@@ -1,7 +1,7 @@
 # dev_buddy/packages/dev_buddy/pubspec.yaml
 name: dev_buddy
 description: "Human-readable Flutter diagnostics overlay. Translates DevTools metrics into actionable fix suggestions with zero external dependencies."
-version: 0.1.0
+version: 0.2.0
 homepage: https://github.com/abdullah017/dev_buddy
 repository: https://github.com/abdullah017/dev_buddy/tree/main/packages/dev_buddy
 issue_tracker: https://github.com/abdullah017/dev_buddy/issues

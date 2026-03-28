@@ -1,5 +1,5 @@
 // packages/dev_buddy_dio/lib/src/dio_interceptor.dart
-import 'package:dev_buddy/dev_buddy.dart';
+import 'package:dev_buddy_engine/dev_buddy_engine.dart';
 import 'package:dio/dio.dart';
 
 /// Dio interceptor that captures HTTP request/response data for DevBuddy.
@@ -27,8 +27,12 @@ class DevBuddyDioInterceptor extends Interceptor {
   /// Whether to capture request/response body previews.
   final bool captureBody;
 
-  /// Tracks request start times keyed by [RequestOptions.hashCode].
-  final Map<int, DateTime> _requestTimestamps = {};
+  /// Atomic counter for unique request IDs — avoids hashCode collisions.
+  static int _nextRequestId = 0;
+
+  /// Maps request identity hash → (requestId, startTime).
+  /// Uses [identityHashCode] which is stable for the object's lifetime.
+  final Map<int, _RequestTracking> _pendingRequests = {};
 
   /// Entries older than this duration are considered orphaned.
   static const Duration _orphanThreshold = Duration(minutes: 5);
@@ -42,15 +46,18 @@ class DevBuddyDioInterceptor extends Interceptor {
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    _cleanupOrphanedTimestamps();
-    _requestTimestamps[options.hashCode] = DateTime.now();
+    _cleanupOrphanedRequests();
+    _pendingRequests[identityHashCode(options)] = _RequestTracking(
+      id: '${_nextRequestId++}',
+      startTime: DateTime.now(),
+    );
     handler.next(options);
   }
 
-  void _cleanupOrphanedTimestamps() {
+  void _cleanupOrphanedRequests() {
     final now = DateTime.now();
-    _requestTimestamps.removeWhere(
-      (_, startTime) => now.difference(startTime) > _orphanThreshold,
+    _pendingRequests.removeWhere(
+      (_, tracking) => now.difference(tracking.startTime) > _orphanThreshold,
     );
   }
 
@@ -84,8 +91,9 @@ class DevBuddyDioInterceptor extends Interceptor {
     Map<String, List<String>>? responseHeaders,
     String? errorMessage,
   }) {
-    final startTime = _requestTimestamps.remove(requestOptions.hashCode);
+    final tracking = _pendingRequests.remove(identityHashCode(requestOptions));
     final now = DateTime.now();
+    final startTime = tracking?.startTime;
     final durationMs = startTime != null
         ? now.difference(startTime).inMilliseconds
         : 0;
@@ -124,30 +132,38 @@ class DevBuddyDioInterceptor extends Interceptor {
         (k, v) => MapEntry(k.toString(), v.toString()),
       );
       if (responseHeaders != null) {
-        resHeaders = responseHeaders.map(
-          (k, v) => MapEntry(k, v.join(', ')),
-        );
+        resHeaders = responseHeaders.map((k, v) => MapEntry(k, v.join(', ')));
       }
     }
 
     // Content-Type extraction
     final contentType = responseHeaders?['content-type']?.firstOrNull;
 
-    onEvent(NetworkRequestEvent(
-      requestId: requestOptions.hashCode.toString(),
-      method: requestOptions.method,
-      url: uri,
-      statusCode: statusCode,
-      durationMs: durationMs,
-      requestTimestamp: startTime ?? now,
-      responseSize: responseSize,
-      requestSize: requestSize,
-      errorMessage: errorMessage,
-      requestHeaders: reqHeaders,
-      responseHeaders: resHeaders,
-      requestBody: requestBodyPreview,
-      responseBody: responseBodyPreview,
-      contentType: contentType,
-    ));
+    onEvent(
+      NetworkRequestEvent(
+        requestId: tracking?.id ?? '${_nextRequestId++}',
+        method: requestOptions.method,
+        url: uri,
+        statusCode: statusCode,
+        durationMs: durationMs,
+        requestTimestamp: startTime ?? now,
+        responseSize: responseSize,
+        requestSize: requestSize,
+        errorMessage: errorMessage,
+        requestHeaders: reqHeaders,
+        responseHeaders: resHeaders,
+        requestBody: requestBodyPreview,
+        responseBody: responseBodyPreview,
+        contentType: contentType,
+      ),
+    );
   }
+}
+
+/// Internal tracking data for a pending request.
+class _RequestTracking {
+  final String id;
+  final DateTime startTime;
+
+  const _RequestTracking({required this.id, required this.startTime});
 }

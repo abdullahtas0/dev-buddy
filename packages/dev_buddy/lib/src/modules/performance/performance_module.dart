@@ -64,19 +64,21 @@ class PerformanceModule extends DevBuddyModule {
             consecutiveJanks: _consecutiveJanks,
           );
 
-          _onEvent(DevBuddyEvent(
-            module: id,
-            severity: evaluation.severity,
-            title: evaluation.title,
-            description: evaluation.description,
-            suggestions: evaluation.suggestions,
-            metadata: {
-              'frame_duration_ms': result.durationMs,
-              'threshold_ms': result.thresholdMs,
-              'consecutive_janks': _consecutiveJanks,
-              'current_fps': _analyzer.averageFps,
-            },
-          ));
+          _onEvent(
+            DevBuddyEvent(
+              module: id,
+              severity: evaluation.severity,
+              title: evaluation.title,
+              description: evaluation.description,
+              suggestions: evaluation.suggestions,
+              metadata: {
+                'frame_duration_ms': result.durationMs,
+                'threshold_ms': result.thresholdMs,
+                'consecutive_janks': _consecutiveJanks,
+                'current_fps': _analyzer.averageFps,
+              },
+            ),
+          );
         } else {
           _consecutiveJanks = 0;
         }
@@ -134,35 +136,49 @@ class _PerformanceEventTile extends StatelessWidget {
           children: [
             Row(
               children: [
-                Text(event.severity.emoji, style: const TextStyle(fontSize: 16)),
+                Text(
+                  event.severity.emoji,
+                  style: const TextStyle(fontSize: 16),
+                ),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Text(event.title,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w600, fontSize: 14)),
+                  child: Text(
+                    event.title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 4),
-            Text(event.description,
-                style: const TextStyle(fontSize: 12, color: Colors.grey)),
+            Text(
+              event.description,
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
+            ),
             if (event.suggestions.isNotEmpty) ...[
               const SizedBox(height: 8),
-              ...event.suggestions.map((s) => Padding(
-                    padding: const EdgeInsets.only(bottom: 4),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text('\u{1F4A1} ',
-                            style: TextStyle(fontSize: 11)),
-                        Expanded(
-                          child: Text(s,
-                              style: const TextStyle(
-                                  fontSize: 11, color: Color(0xFF1E88E5))),
+              ...event.suggestions.map(
+                (s) => Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('\u{1F4A1} ', style: TextStyle(fontSize: 11)),
+                      Expanded(
+                        child: Text(
+                          s,
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: Color(0xFF1E88E5),
+                          ),
                         ),
-                      ],
-                    ),
-                  )),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ],
         ),

@@ -34,7 +34,9 @@ class RebuildTrackerModule extends DevBuddyModule {
     _disposed = false;
     _frameCallbackScheduled = false;
     _counter = RebuildCounter();
-    _reporter = RebuildReporter(warningThreshold: config.rebuildWarningThreshold);
+    _reporter = RebuildReporter(
+      warningThreshold: config.rebuildWarningThreshold,
+    );
     _onEvent = onEvent;
 
     // Hook into Flutter's debug rebuild callback
@@ -63,20 +65,22 @@ class RebuildTrackerModule extends DevBuddyModule {
         if (_disposed) return;
         final evaluation = _reporter.evaluate(_counter);
         if (evaluation != null) {
-          _onEvent(DevBuddyEvent(
-            module: id,
-            severity: evaluation.severity,
-            title: evaluation.title,
-            description: evaluation.description,
-            suggestions: evaluation.suggestions,
-            metadata: {
-              'frame_rebuild_count': _counter.frameRebuildCount,
-              'top_rebuilders': _counter
-                  .topRebuildersAsString(5)
-                  .map((e) => {'widget': e.key, 'count': e.value})
-                  .toList(),
-            },
-          ));
+          _onEvent(
+            DevBuddyEvent(
+              module: id,
+              severity: evaluation.severity,
+              title: evaluation.title,
+              description: evaluation.description,
+              suggestions: evaluation.suggestions,
+              metadata: {
+                'frame_rebuild_count': _counter.frameRebuildCount,
+                'top_rebuilders': _counter
+                    .topRebuildersAsString(5)
+                    .map((e) => {'widget': e.key, 'count': e.value})
+                    .toList(),
+              },
+            ),
+          );
         }
         _counter.resetFrame();
       });
@@ -93,46 +97,56 @@ class RebuildTrackerModule extends DevBuddyModule {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text('Top Rebuilders',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+          const Text(
+            'Top Rebuilders',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+          ),
           const SizedBox(height: 8),
           if (top.isEmpty)
             const Center(
-              child: Text('No rebuild data yet',
-                  style: TextStyle(color: Colors.grey)),
+              child: Text(
+                'No rebuild data yet',
+                style: TextStyle(color: Colors.grey),
+              ),
             )
           else
-            ...top.map((entry) => Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(entry.key,
-                            style: const TextStyle(fontSize: 13)),
+            ...top.map(
+              (entry) => Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        entry.key,
+                        style: const TextStyle(fontSize: 13),
                       ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 2),
-                        decoration: BoxDecoration(
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: entry.value > 50
+                            ? Colors.red.shade50
+                            : Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        '${entry.value}x',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
                           color: entry.value > 50
-                              ? Colors.red.shade50
-                              : Colors.grey.shade100,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          '${entry.value}x',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            color: entry.value > 50
-                                ? Colors.red
-                                : Colors.grey.shade700,
-                          ),
+                              ? Colors.red
+                              : Colors.grey.shade700,
                         ),
                       ),
-                    ],
-                  ),
-                )),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           if (events.isNotEmpty) ...[
             const SizedBox(height: 16),
             const Divider(),
@@ -145,10 +159,17 @@ class RebuildTrackerModule extends DevBuddyModule {
                   return ListTile(
                     dense: true,
                     leading: Text(event.severity.emoji),
-                    title: Text(event.title,
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
-                    subtitle: Text(event.description,
-                        style: const TextStyle(fontSize: 11)),
+                    title: Text(
+                      event.title,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    subtitle: Text(
+                      event.description,
+                      style: const TextStyle(fontSize: 11),
+                    ),
                   );
                 },
               ),

@@ -74,8 +74,7 @@ void main() {
         observer.didPush(_createRoute('/detail'), _createRoute('/home'));
         observer.didPush(_createRoute('/settings'), _createRoute('/detail'));
 
-        final names =
-            observer.screenHistory.map((r) => r.screenName).toList();
+        final names = observer.screenHistory.map((r) => r.screenName).toList();
         expect(names, equals(['/home', '/detail', '/settings']));
       });
 
@@ -87,10 +86,16 @@ void main() {
         final after = DateTime.now();
         final record = observer.screenHistory.first;
 
-        expect(record.timestamp.isAfter(before) ||
-            record.timestamp.isAtSameMomentAs(before), isTrue);
-        expect(record.timestamp.isBefore(after) ||
-            record.timestamp.isAtSameMomentAs(after), isTrue);
+        expect(
+          record.timestamp.isAfter(before) ||
+              record.timestamp.isAtSameMomentAs(before),
+          isTrue,
+        );
+        expect(
+          record.timestamp.isBefore(after) ||
+              record.timestamp.isAtSameMomentAs(after),
+          isTrue,
+        );
       });
 
       test('returns an unmodifiable list', () {
@@ -164,8 +169,7 @@ void main() {
         observer.didPush(homeRoute, null);
         observer.didReplace(newRoute: settingsRoute, oldRoute: homeRoute);
 
-        final names =
-            observer.screenHistory.map((r) => r.screenName).toList();
+        final names = observer.screenHistory.map((r) => r.screenName).toList();
         expect(names, contains('/settings'));
       });
     });

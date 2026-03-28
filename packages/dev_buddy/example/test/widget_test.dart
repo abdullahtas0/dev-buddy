@@ -3,7 +3,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:dev_buddy_example/main.dart';
 
 void main() {
-  testWidgets('ShopBuddy renders with bottom navigation', (WidgetTester tester) async {
+  testWidgets('ShopBuddy renders with bottom navigation', (
+    WidgetTester tester,
+  ) async {
     await tester.pumpWidget(const DevBuddyExampleApp());
     await tester.pumpAndSettle();
 

@@ -23,7 +23,10 @@ void main() {
 
       final result = analyzer.analyze(event);
       expect(result.severity, equals(Severity.warning));
-      expect(result.suggestions.any((s) => s.toLowerCase().contains('slow')), isTrue);
+      expect(
+        result.suggestions.any((s) => s.toLowerCase().contains('slow')),
+        isTrue,
+      );
     });
 
     test('flags 401 as auth error', () {
@@ -37,7 +40,10 @@ void main() {
 
       final result = analyzer.analyze(event);
       expect(result.severity, equals(Severity.critical));
-      expect(result.suggestions.any((s) => s.toLowerCase().contains('token')), isTrue);
+      expect(
+        result.suggestions.any((s) => s.toLowerCase().contains('token')),
+        isTrue,
+      );
     });
 
     test('flags 500 as server error', () {

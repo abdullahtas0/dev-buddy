@@ -43,15 +43,15 @@ class AuditLogEntry {
 
   /// Create from a DevBuddyEvent.
   factory AuditLogEntry.fromEvent(DevBuddyEvent event) => AuditLogEntry(
-        timestamp: event.timestamp,
-        type: event.module == 'errors' ? 'error' : 'event',
-        data: {
-          'module': event.module,
-          'severity': event.severity.name,
-          'title': event.title,
-          if (event.metadata != null) 'metadata': event.metadata,
-        },
-      );
+    timestamp: event.timestamp,
+    type: event.module == 'errors' ? 'error' : 'event',
+    data: {
+      'module': event.module,
+      'severity': event.severity.name,
+      'title': event.title,
+      if (event.metadata != null) 'metadata': event.metadata,
+    },
+  );
 
   /// Create from a StateSnapshot.
   factory AuditLogEntry.fromStateSnapshot(StateSnapshot snapshot) =>
@@ -99,16 +99,17 @@ class CrashReport {
       auditTrail.where((e) => e.type == 'error').toList();
 
   Map<String, dynamic> toJson() => {
-        'crash_timestamp': crashTimestamp?.toIso8601String(),
-        'device_info': deviceInfo,
-        'event_count': events.length,
-        'state_change_count': stateChanges.length,
-        'error_count': errors.length,
-        'trail': auditTrail.map((e) => jsonDecode(e.toJsonLine())).toList(),
-      };
+    'crash_timestamp': crashTimestamp?.toIso8601String(),
+    'device_info': deviceInfo,
+    'event_count': events.length,
+    'state_change_count': stateChanges.length,
+    'error_count': errors.length,
+    'trail': auditTrail.map((e) => jsonDecode(e.toJsonLine())).toList(),
+  };
 
   /// Parse a crash report from a list of JSON lines (the .jsonl file content).
-  factory CrashReport.fromJsonLines(List<String> lines, {
+  factory CrashReport.fromJsonLines(
+    List<String> lines, {
     DateTime? crashTimestamp,
     Map<String, dynamic> deviceInfo = const {},
   }) {

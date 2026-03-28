@@ -44,14 +44,14 @@ class StateSnapshot {
   });
 
   Map<String, dynamic> toJson() => {
-        'version': version,
-        'timestamp': timestamp.toIso8601String(),
-        'source': source,
-        if (action != null) 'action': action,
-        'is_anchor': isAnchor,
-        if (serializedState != null) 'state': serializedState,
-        if (serializedDiff != null) 'diff': serializedDiff,
-      };
+    'version': version,
+    'timestamp': timestamp.toIso8601String(),
+    'source': source,
+    if (action != null) 'action': action,
+    'is_anchor': isAnchor,
+    if (serializedState != null) 'state': serializedState,
+    if (serializedDiff != null) 'diff': serializedDiff,
+  };
 }
 
 /// Memory-bounded state store using a ring buffer.
@@ -80,8 +80,16 @@ class StateStore {
   /// Anchor tracking per source — ensures each source gets its own anchors.
   final Map<String, int> _snapshotsSinceAnchor = {};
 
-  /// Last hashCode per source — for pre-filtering unchanged state.
+  /// Last hashCode per source — for best-effort pre-filtering.
+  ///
+  /// Hash collisions are possible: two different states may produce the
+  /// same hashCode. The version counter ([_lastVersions]) provides a
+  /// secondary check — if the version differs, the state is recorded
+  /// even when hashCodes collide.
   final Map<String, int> _lastHashCodes = {};
+
+  /// Monotonic version per source — secondary guard against hash collisions.
+  final Map<String, int> _lastVersions = {};
 
   StateStore({
     this.maxBudgetBytes = 20 * 1024 * 1024, // 20MB
@@ -113,17 +121,25 @@ class StateStore {
   /// [action] is the name of the event/action that triggered this change.
   ///
   /// Returns true if the snapshot was recorded, false if skipped
-  /// (hashCode unchanged).
+  /// (hashCode unchanged and no explicit version bump).
   bool record({
     required String source,
     required int stateHashCode,
     String? serializedState,
     String? serializedDiff,
     String? action,
+    int? sourceVersion,
   }) {
-    // hashCode pre-filter: skip if state hasn't actually changed
-    if (_lastHashCodes[source] == stateHashCode) return false;
+    // hashCode pre-filter: skip if state hasn't actually changed.
+    // Secondary check: if caller provides a sourceVersion that differs
+    // from the last recorded version, record even on hash collision.
+    if (_lastHashCodes[source] == stateHashCode) {
+      if (sourceVersion == null || _lastVersions[source] == sourceVersion) {
+        return false;
+      }
+    }
     _lastHashCodes[source] = stateHashCode;
+    if (sourceVersion != null) _lastVersions[source] = sourceVersion;
 
     _version++;
     final sourceCount = (_snapshotsSinceAnchor[source] ?? 0) + 1;
@@ -132,8 +148,11 @@ class StateStore {
     final isAnchor = sourceCount >= anchorInterval;
     if (isAnchor) _snapshotsSinceAnchor[source] = 0;
 
-    final data = isAnchor ? serializedState : (serializedDiff ?? serializedState);
-    final estimatedSize = (data?.length ?? 0) +
+    final data = isAnchor
+        ? serializedState
+        : (serializedDiff ?? serializedState);
+    final estimatedSize =
+        (data?.length ?? 0) +
         (source.length) +
         (action?.length ?? 0) +
         64; // overhead for other fields
@@ -150,7 +169,8 @@ class StateStore {
     );
 
     // Enforce RAM budget — evict oldest entries
-    while (_totalSizeBytes + estimatedSize > maxBudgetBytes && _ring.isNotEmpty) {
+    while (_totalSizeBytes + estimatedSize > maxBudgetBytes &&
+        _ring.isNotEmpty) {
       _evictOldest();
     }
 
@@ -188,6 +208,7 @@ class StateStore {
     _totalSizeBytes = 0;
     _snapshotsSinceAnchor.clear();
     _lastHashCodes.clear();
+    _lastVersions.clear();
   }
 
   /// Release resources.

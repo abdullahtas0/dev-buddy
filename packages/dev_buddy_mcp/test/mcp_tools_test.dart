@@ -13,21 +13,30 @@ class _FakeModule extends DiagnosticModule {
   late void Function(DevBuddyEvent) _onEvent;
 
   @override
-  void initialize({required DevBuddyConfig config, required void Function(DevBuddyEvent) onEvent}) {
+  void initialize({
+    required DevBuddyConfig config,
+    required void Function(DevBuddyEvent) onEvent,
+  }) {
     _onEvent = onEvent;
   }
 
   @override
   void dispose() {}
 
-  void emit({Severity severity = Severity.warning, String module = 'fake', String title = 'Test Event'}) {
-    _onEvent(DevBuddyEvent(
-      module: module,
-      severity: severity,
-      title: title,
-      description: 'Test description',
-      suggestions: ['Fix it', 'Try again'],
-    ));
+  void emit({
+    Severity severity = Severity.warning,
+    String module = 'fake',
+    String title = 'Test Event',
+  }) {
+    _onEvent(
+      DevBuddyEvent(
+        module: module,
+        severity: severity,
+        title: title,
+        description: 'Test description',
+        suggestions: ['Fix it', 'Try again'],
+      ),
+    );
   }
 }
 
@@ -39,7 +48,10 @@ void main() {
 
     setUp(() {
       module = _FakeModule();
-      engine = DevBuddyEngine(modules: [module], config: const DevBuddyConfig(maxEvents: 50));
+      engine = DevBuddyEngine(
+        modules: [module],
+        config: const DevBuddyConfig(maxEvents: 50),
+      );
       engine.initialize();
       tools = McpTools(engine: engine);
     });
@@ -133,7 +145,10 @@ void main() {
 
     test('sanitizer redacts sensitive headers', () {
       const sanitizer = DataSanitizer(level: SanitizationLevel.moderate);
-      final headers = {'Authorization': 'Bearer secret123', 'Content-Type': 'application/json'};
+      final headers = {
+        'Authorization': 'Bearer secret123',
+        'Content-Type': 'application/json',
+      };
       final sanitized = sanitizer.sanitizeHeaders(headers);
 
       expect(sanitized['Authorization'], '[REDACTED]');

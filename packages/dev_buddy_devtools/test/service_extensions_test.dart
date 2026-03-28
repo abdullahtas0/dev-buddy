@@ -16,7 +16,10 @@ class _FakeModule extends DiagnosticModule {
   late void Function(DevBuddyEvent) _onEvent;
 
   @override
-  void initialize({required DevBuddyConfig config, required void Function(DevBuddyEvent) onEvent}) {
+  void initialize({
+    required DevBuddyConfig config,
+    required void Function(DevBuddyEvent) onEvent,
+  }) {
     _onEvent = onEvent;
   }
 
@@ -24,13 +27,15 @@ class _FakeModule extends DiagnosticModule {
   void dispose() {}
 
   void emit(String title, {Severity severity = Severity.warning}) {
-    _onEvent(DevBuddyEvent(
-      module: id,
-      severity: severity,
-      title: title,
-      description: 'Test event',
-      suggestions: ['Fix it'],
-    ));
+    _onEvent(
+      DevBuddyEvent(
+        module: id,
+        severity: severity,
+        title: title,
+        description: 'Test event',
+        suggestions: ['Fix it'],
+      ),
+    );
   }
 }
 
@@ -50,17 +55,23 @@ void main() {
 
     tearDown(() => engine.dispose());
 
-    test('engine.snapshot() returns complete state for ext.dev_buddy.snapshot', () {
-      module.emit('Test Warning');
-      engine.flushForTesting();
+    test(
+      'engine.snapshot() returns complete state for ext.dev_buddy.snapshot',
+      () {
+        module.emit('Test Warning');
+        engine.flushForTesting();
 
-      final snap = engine.snapshot();
-      expect(snap['overall_severity'], isA<String>());
-      expect(snap['event_count'], 1);
-      expect(snap['modules'], containsPair('test_module', {'status': 'active'}));
-      expect(snap['recent_events'], hasLength(1));
-      expect(snap['state_store'], isA<Map>());
-    });
+        final snap = engine.snapshot();
+        expect(snap['overall_severity'], isA<String>());
+        expect(snap['event_count'], 1);
+        expect(
+          snap['modules'],
+          containsPair('test_module', {'status': 'active'}),
+        );
+        expect(snap['recent_events'], hasLength(1));
+        expect(snap['state_store'], isA<Map>());
+      },
+    );
 
     test('eventBus.history provides data for ext.dev_buddy.events', () {
       module.emit('Event 1');
@@ -93,7 +104,9 @@ void main() {
       expect(history.first.source, 'riverpod:counter');
 
       // Simulate source filter
-      final filtered = history.where((s) => s.source.contains('counter')).toList();
+      final filtered = history
+          .where((s) => s.source.contains('counter'))
+          .toList();
       expect(filtered, hasLength(1));
     });
 

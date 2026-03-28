@@ -30,14 +30,14 @@ class AccessibilityFinding {
   });
 
   Map<String, dynamic> toJson() => {
-        'rule_id': ruleId,
-        'rule_name': ruleName,
-        'severity': severity.name,
-        'description': description,
-        if (suggestion != null) 'suggestion': suggestion,
-        if (bounds != null) 'bounds': bounds,
-        if (widgetType != null) 'widget_type': widgetType,
-      };
+    'rule_id': ruleId,
+    'rule_name': ruleName,
+    'severity': severity.name,
+    'description': description,
+    if (suggestion != null) 'suggestion': suggestion,
+    if (bounds != null) 'bounds': bounds,
+    if (widgetType != null) 'widget_type': widgetType,
+  };
 }
 
 /// Result of an accessibility audit.
@@ -63,14 +63,14 @@ class AccessibilityAuditResult {
       findings.where((f) => f.severity == Severity.warning).toList();
 
   Map<String, dynamic> toJson() => {
-        'score': score,
-        'total_elements': totalElements,
-        'passed_elements': passedElements,
-        'failed_elements': failedElements,
-        'critical_count': critical.length,
-        'warning_count': warnings.length,
-        'findings': findings.map((f) => f.toJson()).toList(),
-      };
+    'score': score,
+    'total_elements': totalElements,
+    'passed_elements': passedElements,
+    'failed_elements': failedElements,
+    'critical_count': critical.length,
+    'warning_count': warnings.length,
+    'findings': findings.map((f) => f.toJson()).toList(),
+  };
 }
 
 /// Represents a semantics node extracted from the Flutter widget tree.
@@ -152,21 +152,24 @@ class AccessibilityAuditor {
     if (element.hasAction || element.isButton || element.isLink) {
       if (element.width < minTouchTargetSize ||
           element.height < minTouchTargetSize) {
-        findings.add(AccessibilityFinding(
-          ruleId: 'touch-target-size',
-          ruleName: 'Touch Target Too Small',
-          severity: element.width < 32 || element.height < 32
-              ? Severity.critical
-              : Severity.warning,
-          description:
-              '${element.widgetType ?? 'Element'} is ${element.width.round()}x'
-              '${element.height.round()}dp. Minimum: ${minTouchTargetSize.round()}x'
-              '${minTouchTargetSize.round()}dp.',
-          suggestion: 'Wrap with SizedBox(width: 48, height: 48) or use '
-              'MaterialTapTargetSize.padded',
-          bounds: [element.left, element.top, element.width, element.height],
-          widgetType: element.widgetType,
-        ));
+        findings.add(
+          AccessibilityFinding(
+            ruleId: 'touch-target-size',
+            ruleName: 'Touch Target Too Small',
+            severity: element.width < 32 || element.height < 32
+                ? Severity.critical
+                : Severity.warning,
+            description:
+                '${element.widgetType ?? 'Element'} is ${element.width.round()}x'
+                '${element.height.round()}dp. Minimum: ${minTouchTargetSize.round()}x'
+                '${minTouchTargetSize.round()}dp.',
+            suggestion:
+                'Wrap with SizedBox(width: 48, height: 48) or use '
+                'MaterialTapTargetSize.padded',
+            bounds: [element.left, element.top, element.width, element.height],
+            widgetType: element.widgetType,
+          ),
+        );
       }
     }
 
@@ -175,18 +178,21 @@ class AccessibilityAuditor {
         (element.label == null || element.label!.isEmpty) &&
         (element.hint == null || element.hint!.isEmpty) &&
         (element.value == null || element.value!.isEmpty)) {
-      findings.add(AccessibilityFinding(
-        ruleId: 'missing-label',
-        ruleName: 'Missing Accessibility Label',
-        severity: Severity.critical,
-        description:
-            '${element.widgetType ?? 'Interactive element'} has no semantic label. '
-            'Screen readers cannot describe this element to users.',
-        suggestion: 'Add Semantics(label: "descriptive text") or '
-            'use tooltip property',
-        bounds: [element.left, element.top, element.width, element.height],
-        widgetType: element.widgetType,
-      ));
+      findings.add(
+        AccessibilityFinding(
+          ruleId: 'missing-label',
+          ruleName: 'Missing Accessibility Label',
+          severity: Severity.critical,
+          description:
+              '${element.widgetType ?? 'Interactive element'} has no semantic label. '
+              'Screen readers cannot describe this element to users.',
+          suggestion:
+              'Add Semantics(label: "descriptive text") or '
+              'use tooltip property',
+          bounds: [element.left, element.top, element.width, element.height],
+          widgetType: element.widgetType,
+        ),
+      );
     }
 
     // Rule 3: Image without description (WCAG 1.1.1)
@@ -194,18 +200,21 @@ class AccessibilityAuditor {
     if (element.isImage &&
         !findings.any((f) => f.ruleId == 'missing-label') &&
         (element.label == null || element.label!.isEmpty)) {
-      findings.add(AccessibilityFinding(
-        ruleId: 'image-no-description',
-        ruleName: 'Image Without Description',
-        severity: Severity.warning,
-        description:
-            '${element.widgetType ?? 'Image'} has no alternative text. '
-            'Visually impaired users cannot understand this content.',
-        suggestion: 'Add semanticLabel to Image widget or wrap with '
-            'Semantics(label: "description")',
-        bounds: [element.left, element.top, element.width, element.height],
-        widgetType: element.widgetType,
-      ));
+      findings.add(
+        AccessibilityFinding(
+          ruleId: 'image-no-description',
+          ruleName: 'Image Without Description',
+          severity: Severity.warning,
+          description:
+              '${element.widgetType ?? 'Image'} has no alternative text. '
+              'Visually impaired users cannot understand this content.',
+          suggestion:
+              'Add semanticLabel to Image widget or wrap with '
+              'Semantics(label: "description")',
+          bounds: [element.left, element.top, element.width, element.height],
+          widgetType: element.widgetType,
+        ),
+      );
     }
 
     return findings;

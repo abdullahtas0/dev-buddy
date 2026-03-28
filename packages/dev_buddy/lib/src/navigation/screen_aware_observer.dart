@@ -45,8 +45,7 @@ class DevBuddyNavigatorObserverImpl extends NavigatorObserver {
 
   /// The name of the currently visible screen, or `null` if the stack is empty
   /// or the current route has no name.
-  String? get currentScreen =>
-      _routeStack.isEmpty ? null : _routeStack.last;
+  String? get currentScreen => _routeStack.isEmpty ? null : _routeStack.last;
 
   /// An unmodifiable list of all screen transitions recorded so far,
   /// in chronological order.
@@ -60,10 +59,9 @@ class DevBuddyNavigatorObserverImpl extends NavigatorObserver {
     if (name == null) return;
 
     _routeStack.add(name);
-    _history.add(ScreenTransitionRecord(
-      screenName: name,
-      timestamp: DateTime.now(),
-    ));
+    _history.add(
+      ScreenTransitionRecord(screenName: name, timestamp: DateTime.now()),
+    );
   }
 
   @override
@@ -96,10 +94,9 @@ class DevBuddyNavigatorObserverImpl extends NavigatorObserver {
     final newName = newRoute?.settings.name;
     if (newName != null) {
       _routeStack.add(newName);
-      _history.add(ScreenTransitionRecord(
-        screenName: newName,
-        timestamp: DateTime.now(),
-      ));
+      _history.add(
+        ScreenTransitionRecord(screenName: newName, timestamp: DateTime.now()),
+      );
     }
   }
 

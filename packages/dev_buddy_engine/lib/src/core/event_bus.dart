@@ -29,7 +29,9 @@ class EventBus {
       _controller.stream.where((e) => e.severity.isAtLeast(minSeverity));
 
   /// Immutable view of event history, newest first.
-  List<DevBuddyEvent> get history => List.unmodifiable(_history);
+  ///
+  /// Internally stored oldest-first for O(1) append; reversed on read.
+  List<DevBuddyEvent> get history => List.unmodifiable(_history.reversed);
 
   /// Number of events dropped due to history limit.
   int get droppedCount => _droppedCount;
@@ -37,12 +39,23 @@ class EventBus {
   /// Number of events currently in history.
   int get length => _history.length;
 
+  /// Whether this event bus has been disposed.
+  bool get isDisposed => _controller.isClosed;
+
+  /// History utilization as a percentage (0.0 to 1.0).
+  /// Useful for monitoring backpressure — values near 1.0 indicate
+  /// high event throughput and frequent evictions.
+  double get utilizationPercent =>
+      maxHistory > 0 ? _history.length / maxHistory : 0;
+
   /// Emit an event to all listeners and append to history.
+  ///
+  /// O(1) amortized — uses append instead of insert-at-head.
   void emit(DevBuddyEvent event) {
     if (_controller.isClosed) return;
-    _history.insert(0, event);
+    _history.add(event);
     if (_history.length > maxHistory) {
-      _history.removeLast();
+      _history.removeAt(0);
       _droppedCount++;
     }
     _controller.add(event);
@@ -53,19 +66,19 @@ class EventBus {
   void emitBatch(List<DevBuddyEvent> events) {
     if (_controller.isClosed) return;
     for (final event in events) {
-      _history.insert(0, event);
+      _history.add(event);
       _controller.add(event);
     }
-    // Enforce limit after batch
+    // Enforce limit after batch — remove oldest entries from front
     while (_history.length > maxHistory) {
-      _history.removeLast();
+      _history.removeAt(0);
       _droppedCount++;
     }
   }
 
-  /// Events for a specific module, from history.
+  /// Events for a specific module, from history (newest first).
   List<DevBuddyEvent> historyFor(String moduleId) =>
-      _history.where((e) => e.module == moduleId).toList();
+      _history.reversed.where((e) => e.module == moduleId).toList();
 
   /// Clear all history and reset dropped count.
   void clear() {

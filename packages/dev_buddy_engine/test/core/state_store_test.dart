@@ -132,9 +132,17 @@ void main() {
     });
 
     test('forSource() filters by source', () {
-      store.record(source: 'riverpod:counter', stateHashCode: 1, serializedState: '1');
+      store.record(
+        source: 'riverpod:counter',
+        stateHashCode: 1,
+        serializedState: '1',
+      );
       store.record(source: 'bloc:auth', stateHashCode: 2, serializedState: '2');
-      store.record(source: 'riverpod:counter', stateHashCode: 3, serializedState: '3');
+      store.record(
+        source: 'riverpod:counter',
+        stateHashCode: 3,
+        serializedState: '3',
+      );
 
       final riverpodSnaps = store.forSource('riverpod:counter');
       expect(riverpodSnaps, hasLength(2));
@@ -173,11 +181,9 @@ void main() {
     test('history returns immutable list', () {
       store.record(source: 'a', stateHashCode: 1, serializedState: '1');
       expect(
-        () => store.history.add(StateSnapshot(
-          version: 99,
-          timestamp: DateTime.now(),
-          source: 'hack',
-        )),
+        () => store.history.add(
+          StateSnapshot(version: 99, timestamp: DateTime.now(), source: 'hack'),
+        ),
         throwsUnsupportedError,
       );
     });

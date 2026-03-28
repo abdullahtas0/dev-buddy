@@ -71,22 +71,22 @@ class NetworkRequestEvent {
       responseBody != null;
 
   Map<String, dynamic> toJson() => {
-        if (requestId != null) 'request_id': requestId,
-        'method': method,
-        'url': url.toString(),
-        'status_code': statusCode,
-        'duration_ms': durationMs,
-        'timestamp': requestTimestamp.toIso8601String(),
-        if (responseSize != null) 'response_size': responseSize,
-        if (requestSize != null) 'request_size': requestSize,
-        if (errorMessage != null) 'error': errorMessage,
-        if (contentType != null) 'content_type': contentType,
-        if (requestHeaders != null) 'request_headers': requestHeaders,
-        if (responseHeaders != null) 'response_headers': responseHeaders,
-        if (requestBody != null) 'request_body': requestBody,
-        if (responseBody != null) 'response_body': responseBody,
-        if (timeline != null) 'timeline': timeline!.toJson(),
-      };
+    if (requestId != null) 'request_id': requestId,
+    'method': method,
+    'url': url.toString(),
+    'status_code': statusCode,
+    'duration_ms': durationMs,
+    'timestamp': requestTimestamp.toIso8601String(),
+    if (responseSize != null) 'response_size': responseSize,
+    if (requestSize != null) 'request_size': requestSize,
+    if (errorMessage != null) 'error': errorMessage,
+    if (contentType != null) 'content_type': contentType,
+    if (requestHeaders != null) 'request_headers': requestHeaders,
+    if (responseHeaders != null) 'response_headers': responseHeaders,
+    if (requestBody != null) 'request_body': requestBody,
+    if (responseBody != null) 'response_body': responseBody,
+    if (timeline != null) 'timeline': timeline!.toJson(),
+  };
 }
 
 /// Detailed timing breakdown for a network request.
@@ -118,10 +118,10 @@ class NetworkTimeline {
   });
 
   Map<String, dynamic> toJson() => {
-        if (dnsMs != null) 'dns_ms': dnsMs,
-        if (connectMs != null) 'connect_ms': connectMs,
-        if (tlsMs != null) 'tls_ms': tlsMs,
-        if (firstByteMs != null) 'first_byte_ms': firstByteMs,
-        if (downloadMs != null) 'download_ms': downloadMs,
-      };
+    if (dnsMs != null) 'dns_ms': dnsMs,
+    if (connectMs != null) 'connect_ms': connectMs,
+    if (tlsMs != null) 'tls_ms': tlsMs,
+    if (firstByteMs != null) 'first_byte_ms': firstByteMs,
+    if (downloadMs != null) 'download_ms': downloadMs,
+  };
 }

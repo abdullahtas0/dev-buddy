@@ -6,5 +6,4 @@
 // In release, dart:developer is not available, so the noop path is taken.
 // This ensures DevBuddy compiles to zero bytes in release via tree-shaking.
 
-export 'dev_buddy_noop.dart'
-    if (dart.library.developer) 'dev_buddy_real.dart';
+export 'dev_buddy_noop.dart' if (dart.library.developer) 'dev_buddy_real.dart';

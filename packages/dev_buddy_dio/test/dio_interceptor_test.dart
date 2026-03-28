@@ -1,8 +1,8 @@
 // packages/dev_buddy_dio/test/dio_interceptor_test.dart
-import 'package:dev_buddy/dev_buddy.dart';
+import 'package:dev_buddy_engine/dev_buddy_engine.dart';
 import 'package:dev_buddy_dio/dev_buddy_dio.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter_test/flutter_test.dart';
+import 'package:test/test.dart';
 
 void main() {
   group('DevBuddyDioInterceptor', () {
@@ -11,9 +11,7 @@ void main() {
 
     setUp(() {
       capturedEvents = [];
-      interceptor = DevBuddyDioInterceptor(
-        onEvent: capturedEvents.add,
-      );
+      interceptor = DevBuddyDioInterceptor(onEvent: capturedEvents.add);
     });
 
     test('creates interceptor with required callback', () {
@@ -80,10 +78,7 @@ void main() {
 
       final dioException = DioException(
         requestOptions: requestOptions,
-        response: Response(
-          requestOptions: requestOptions,
-          statusCode: 404,
-        ),
+        response: Response(requestOptions: requestOptions, statusCode: 404),
         type: DioExceptionType.badResponse,
         message: 'Not Found',
       );

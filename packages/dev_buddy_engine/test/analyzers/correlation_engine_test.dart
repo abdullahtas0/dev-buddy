@@ -6,15 +6,14 @@ DevBuddyEvent _event({
   Severity severity = Severity.info,
   String title = 'Test',
   Map<String, dynamic>? metadata,
-}) =>
-    DevBuddyEvent(
-      module: module,
-      severity: severity,
-      title: title,
-      description: 'desc',
-      suggestions: ['fix'],
-      metadata: metadata,
-    );
+}) => DevBuddyEvent(
+  module: module,
+  severity: severity,
+  title: title,
+  description: 'desc',
+  suggestions: ['fix'],
+  metadata: metadata,
+);
 
 void main() {
   group('CorrelationEngine', () {
@@ -124,14 +123,17 @@ void main() {
     });
 
     test('custom rules can be provided', () {
-      final custom = CorrelationEngine(rules: [
-        CorrelationRule(
-          id: 'custom',
-          name: 'Custom Rule',
-          matches: (events) => events.length > 2,
-          synthesize: (_) => _event(module: 'correlation', title: 'Custom Insight'),
-        ),
-      ]);
+      final custom = CorrelationEngine(
+        rules: [
+          CorrelationRule(
+            id: 'custom',
+            name: 'Custom Rule',
+            matches: (events) => events.length > 2,
+            synthesize: (_) =>
+                _event(module: 'correlation', title: 'Custom Insight'),
+          ),
+        ],
+      );
 
       final events = [_event(), _event(), _event()];
       final insights = custom.evaluate(events);

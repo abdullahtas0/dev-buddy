@@ -63,11 +63,7 @@ class _ShopBuddyHome extends StatefulWidget {
 class _ShopBuddyHomeState extends State<_ShopBuddyHome> {
   int _currentIndex = 0;
 
-  final _screens = const [
-    ProductListScreen(),
-    CartScreen(),
-    InspectorScreen(),
-  ];
+  final _screens = const [ProductListScreen(), CartScreen(), InspectorScreen()];
 
   @override
   Widget build(BuildContext context) {

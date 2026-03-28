@@ -29,9 +29,9 @@ class RebuildCounter {
   /// Returns top rebuilders as String entries (for UI display only).
   /// .toString() is only called here, not in the hot recording path.
   List<MapEntry<String, int>> topRebuildersAsString(int n) {
-    return topRebuilders(n)
-        .map((e) => MapEntry(e.key.toString(), e.value))
-        .toList();
+    return topRebuilders(
+      n,
+    ).map((e) => MapEntry(e.key.toString(), e.value)).toList();
   }
 
   /// Resets per-frame count. Called at the start of each frame.

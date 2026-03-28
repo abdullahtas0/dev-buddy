@@ -48,10 +48,7 @@ void main() {
       }
       final result = reporter.evaluate(counter);
       expect(result, isNotNull);
-      expect(
-        result!.suggestions.any((s) => s.contains('const')),
-        isTrue,
-      );
+      expect(result!.suggestions.any((s) => s.contains('const')), isTrue);
     });
   });
 }

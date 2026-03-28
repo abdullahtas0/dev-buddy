@@ -40,10 +40,7 @@ void main() {
         final report = DevBuddyReport(
           events: sampleEvents,
           generatedAt: fixedTime,
-          deviceInfo: const {
-            'platform': 'android',
-            'version': '14',
-          },
+          deviceInfo: const {'platform': 'android', 'version': '14'},
         );
         exporter = DevBuddyExporterImpl(report: report);
       });
@@ -95,10 +92,7 @@ void main() {
 
     group('with empty events', () {
       setUp(() {
-        final report = DevBuddyReport(
-          events: const [],
-          generatedAt: fixedTime,
-        );
+        final report = DevBuddyReport(events: const [], generatedAt: fixedTime);
         exporter = DevBuddyExporterImpl(report: report);
       });
 

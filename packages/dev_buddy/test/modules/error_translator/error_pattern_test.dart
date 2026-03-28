@@ -7,7 +7,9 @@ void main() {
   group('ErrorPattern', () {
     test('matches RenderFlex overflow error and extracts pixels', () {
       final pattern = ErrorPattern(
-        pattern: RegExp(r'RenderFlex overflowed by ([\d.]+) pixels on the (\w+)'),
+        pattern: RegExp(
+          r'RenderFlex overflowed by ([\d.]+) pixels on the (\w+)',
+        ),
         severity: Severity.critical,
         titleBuilder: (match) => 'Overflow: ${match[1]}px ${match[2]}',
         descriptionBuilder: (match) =>

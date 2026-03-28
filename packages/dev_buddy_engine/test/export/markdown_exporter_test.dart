@@ -66,8 +66,20 @@ void main() {
     test('groups events by module', () {
       final report = DevBuddyReport(
         events: [
-          DevBuddyEvent(module: 'performance', severity: Severity.warning, title: 'A', description: 'd', suggestions: []),
-          DevBuddyEvent(module: 'network', severity: Severity.warning, title: 'B', description: 'd', suggestions: []),
+          DevBuddyEvent(
+            module: 'performance',
+            severity: Severity.warning,
+            title: 'A',
+            description: 'd',
+            suggestions: [],
+          ),
+          DevBuddyEvent(
+            module: 'network',
+            severity: Severity.warning,
+            title: 'B',
+            description: 'd',
+            suggestions: [],
+          ),
         ],
         generatedAt: DateTime(2026, 3, 28),
       );
@@ -92,7 +104,13 @@ void main() {
     test('ends with DevBuddy attribution', () {
       final report = DevBuddyReport(
         events: [
-          DevBuddyEvent(module: 'test', severity: Severity.info, title: 'T', description: 'd', suggestions: []),
+          DevBuddyEvent(
+            module: 'test',
+            severity: Severity.info,
+            title: 'T',
+            description: 'd',
+            suggestions: [],
+          ),
         ],
         generatedAt: DateTime(2026, 3, 28),
       );

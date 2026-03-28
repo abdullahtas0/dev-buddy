@@ -8,11 +8,7 @@ class StatusIndicator extends StatelessWidget {
   final Severity severity;
   final double size;
 
-  const StatusIndicator({
-    super.key,
-    required this.severity,
-    this.size = 8.0,
-  });
+  const StatusIndicator({super.key, required this.severity, this.size = 8.0});
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +21,9 @@ class StatusIndicator extends StatelessWidget {
         color: DevBuddyTheme.colorForSeverity(severity),
         boxShadow: [
           BoxShadow(
-            color: DevBuddyTheme.colorForSeverity(severity).withValues(alpha: 0.4),
+            color: DevBuddyTheme.colorForSeverity(
+              severity,
+            ).withValues(alpha: 0.4),
             blurRadius: 4,
           ),
         ],

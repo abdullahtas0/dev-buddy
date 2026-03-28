@@ -75,7 +75,8 @@ class ErrorTranslatorModule extends DevBuddyModule {
   }
 
   bool _handlePlatformError(Object error, StackTrace stack) {
-    if (_disposed) return _previousPlatformErrorHandler?.call(error, stack) ?? false;
+    if (_disposed)
+      return _previousPlatformErrorHandler?.call(error, stack) ?? false;
     _translateAndEmit(error.toString());
 
     // Forward to previous handler, guarded against throws.
@@ -91,29 +92,33 @@ class ErrorTranslatorModule extends DevBuddyModule {
     final match = _catalog.translate(errorMessage);
 
     if (match != null) {
-      _onEvent(DevBuddyEvent(
-        module: id,
-        severity: match.severity,
-        title: match.title,
-        description: match.description,
-        suggestions: match.suggestions,
-        metadata: {'raw_error': errorMessage},
-      ));
+      _onEvent(
+        DevBuddyEvent(
+          module: id,
+          severity: match.severity,
+          title: match.title,
+          description: match.description,
+          suggestions: match.suggestions,
+          metadata: {'raw_error': errorMessage},
+        ),
+      );
     } else {
       // Unknown error - still report it, just less detailed
-      _onEvent(DevBuddyEvent(
-        module: id,
-        severity: Severity.warning,
-        title: 'Unrecognized Error',
-        description: errorMessage.length > 200
-            ? '${errorMessage.substring(0, 200)}...'
-            : errorMessage,
-        suggestions: [
-          'Search this error message on Google or StackOverflow',
-          'Check the stack trace in the console for the source location',
-        ],
-        metadata: {'raw_error': errorMessage, 'matched': false},
-      ));
+      _onEvent(
+        DevBuddyEvent(
+          module: id,
+          severity: Severity.warning,
+          title: 'Unrecognized Error',
+          description: errorMessage.length > 200
+              ? '${errorMessage.substring(0, 200)}...'
+              : errorMessage,
+          suggestions: [
+            'Search this error message on Google or StackOverflow',
+            'Check the stack trace in the console for the source location',
+          ],
+          metadata: {'raw_error': errorMessage, 'matched': false},
+        ),
+      );
     }
   }
 
@@ -165,40 +170,58 @@ class _ErrorEventTile extends StatelessWidget {
           children: [
             Row(
               children: [
-                Text(event.severity.emoji, style: const TextStyle(fontSize: 16)),
+                Text(
+                  event.severity.emoji,
+                  style: const TextStyle(fontSize: 16),
+                ),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Text(event.title,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w600, fontSize: 14)),
+                  child: Text(
+                    event.title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 6),
-            Text(event.description,
-                style: const TextStyle(fontSize: 12, color: Colors.grey)),
+            Text(
+              event.description,
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
+            ),
             if (event.suggestions.isNotEmpty) ...[
               const SizedBox(height: 8),
-              const Text('How to fix:',
-                  style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF1E88E5))),
+              const Text(
+                'How to fix:',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF1E88E5),
+                ),
+              ),
               const SizedBox(height: 4),
-              ...event.suggestions.map((s) => Padding(
-                    padding: const EdgeInsets.only(bottom: 3),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text('  \u2022 ', style: TextStyle(fontSize: 11)),
-                        Expanded(
-                          child: Text(s,
-                              style: const TextStyle(
-                                  fontSize: 11, color: Color(0xFF1E88E5))),
+              ...event.suggestions.map(
+                (s) => Padding(
+                  padding: const EdgeInsets.only(bottom: 3),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('  \u2022 ', style: TextStyle(fontSize: 11)),
+                      Expanded(
+                        child: Text(
+                          s,
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: Color(0xFF1E88E5),
+                          ),
                         ),
-                      ],
-                    ),
-                  )),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ],
         ),

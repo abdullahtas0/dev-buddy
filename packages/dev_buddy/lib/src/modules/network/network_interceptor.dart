@@ -13,15 +13,12 @@ class DevBuddyHttpOverrides extends HttpOverrides {
   final void Function(NetworkRequestEvent event) onEvent;
   final HttpOverrides? previous;
 
-  DevBuddyHttpOverrides({
-    required this.onEvent,
-    this.previous,
-  });
+  DevBuddyHttpOverrides({required this.onEvent, this.previous});
 
   @override
   HttpClient createHttpClient(SecurityContext? context) {
-    final client = previous?.createHttpClient(context) ??
-        super.createHttpClient(context);
+    final client =
+        previous?.createHttpClient(context) ?? super.createHttpClient(context);
     return _InstrumentedHttpClient(client, onEvent);
   }
 }
@@ -39,21 +36,27 @@ class _InstrumentedHttpClient implements HttpClient {
       final request = await _inner.openUrl(method, url);
       return _InstrumentedRequest(request, method, url, startTime, _onEvent);
     } catch (e) {
-      _onEvent(NetworkRequestEvent(
-        method: method,
-        url: url,
-        durationMs: DateTime.now().difference(startTime).inMilliseconds,
-        requestTimestamp: startTime,
-        errorMessage: e.toString(),
-      ));
+      _onEvent(
+        NetworkRequestEvent(
+          method: method,
+          url: url,
+          durationMs: DateTime.now().difference(startTime).inMilliseconds,
+          requestTimestamp: startTime,
+          errorMessage: e.toString(),
+        ),
+      );
       rethrow;
     }
   }
 
   // Delegate all other HttpClient methods to _inner
   @override
-  Future<HttpClientRequest> open(String method, String host, int port, String path) =>
-      openUrl(method, Uri(scheme: 'http', host: host, port: port, path: path));
+  Future<HttpClientRequest> open(
+    String method,
+    String host,
+    int port,
+    String path,
+  ) => openUrl(method, Uri(scheme: 'http', host: host, port: port, path: path));
   @override
   Future<HttpClientRequest> get(String host, int port, String path) =>
       open('GET', host, port, path);
@@ -106,27 +109,44 @@ class _InstrumentedHttpClient implements HttpClient {
   @override
   String? get userAgent => _inner.userAgent;
   @override
-  set authenticate(Future<bool> Function(Uri url, String scheme, String? realm)? f) =>
-      _inner.authenticate = f;
+  set authenticate(
+    Future<bool> Function(Uri url, String scheme, String? realm)? f,
+  ) => _inner.authenticate = f;
   @override
-  set authenticateProxy(Future<bool> Function(String host, int port, String scheme, String? realm)? f) =>
-      _inner.authenticateProxy = f;
+  set authenticateProxy(
+    Future<bool> Function(String host, int port, String scheme, String? realm)?
+    f,
+  ) => _inner.authenticateProxy = f;
   @override
-  set badCertificateCallback(bool Function(X509Certificate cert, String host, int port)? callback) =>
-      _inner.badCertificateCallback = callback;
+  set badCertificateCallback(
+    bool Function(X509Certificate cert, String host, int port)? callback,
+  ) => _inner.badCertificateCallback = callback;
   @override
-  set connectionFactory(Future<ConnectionTask<Socket>> Function(Uri url, String? proxyHost, int? proxyPort)? f) =>
-      _inner.connectionFactory = f;
+  set connectionFactory(
+    Future<ConnectionTask<Socket>> Function(
+      Uri url,
+      String? proxyHost,
+      int? proxyPort,
+    )?
+    f,
+  ) => _inner.connectionFactory = f;
   @override
   set findProxy(String Function(Uri url)? f) => _inner.findProxy = f;
   @override
   set keyLog(Function(String line)? callback) => _inner.keyLog = callback;
   @override
-  void addCredentials(Uri url, String realm, HttpClientCredentials credentials) =>
-      _inner.addCredentials(url, realm, credentials);
+  void addCredentials(
+    Uri url,
+    String realm,
+    HttpClientCredentials credentials,
+  ) => _inner.addCredentials(url, realm, credentials);
   @override
-  void addProxyCredentials(String host, int port, String realm, HttpClientCredentials credentials) =>
-      _inner.addProxyCredentials(host, port, realm, credentials);
+  void addProxyCredentials(
+    String host,
+    int port,
+    String realm,
+    HttpClientCredentials credentials,
+  ) => _inner.addProxyCredentials(host, port, realm, credentials);
   @override
   void close({bool force = false}) => _inner.close(force: force);
 }
@@ -138,30 +158,42 @@ class _InstrumentedRequest implements HttpClientRequest {
   final DateTime _startTime;
   final void Function(NetworkRequestEvent event) _onEvent;
 
-  _InstrumentedRequest(this._inner, this._method, this._url, this._startTime, this._onEvent);
+  _InstrumentedRequest(
+    this._inner,
+    this._method,
+    this._url,
+    this._startTime,
+    this._onEvent,
+  );
 
   @override
   Future<HttpClientResponse> close() async {
     try {
       final response = await _inner.close();
       final durationMs = DateTime.now().difference(_startTime).inMilliseconds;
-      _onEvent(NetworkRequestEvent(
-        method: _method,
-        url: _url,
-        statusCode: response.statusCode,
-        durationMs: durationMs,
-        requestTimestamp: _startTime,
-        responseSize: response.contentLength > 0 ? response.contentLength : null,
-      ));
+      _onEvent(
+        NetworkRequestEvent(
+          method: _method,
+          url: _url,
+          statusCode: response.statusCode,
+          durationMs: durationMs,
+          requestTimestamp: _startTime,
+          responseSize: response.contentLength > 0
+              ? response.contentLength
+              : null,
+        ),
+      );
       return response;
     } catch (e) {
-      _onEvent(NetworkRequestEvent(
-        method: _method,
-        url: _url,
-        durationMs: DateTime.now().difference(_startTime).inMilliseconds,
-        requestTimestamp: _startTime,
-        errorMessage: e.toString(),
-      ));
+      _onEvent(
+        NetworkRequestEvent(
+          method: _method,
+          url: _url,
+          durationMs: DateTime.now().difference(_startTime).inMilliseconds,
+          requestTimestamp: _startTime,
+          errorMessage: e.toString(),
+        ),
+      );
       rethrow;
     }
   }

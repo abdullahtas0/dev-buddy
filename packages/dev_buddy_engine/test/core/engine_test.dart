@@ -25,14 +25,19 @@ class FakeModule extends DiagnosticModule {
   @override
   void dispose() => disposed = true;
 
-  void emitEvent({Severity severity = Severity.info, String title = 'Fake Event'}) {
-    _onEvent(DevBuddyEvent(
-      module: id,
-      severity: severity,
-      title: title,
-      description: 'Fake description',
-      suggestions: ['Fix it'],
-    ));
+  void emitEvent({
+    Severity severity = Severity.info,
+    String title = 'Fake Event',
+  }) {
+    _onEvent(
+      DevBuddyEvent(
+        module: id,
+        severity: severity,
+        title: title,
+        description: 'Fake description',
+        suggestions: ['Fix it'],
+      ),
+    );
   }
 }
 
@@ -143,8 +148,10 @@ void main() {
 
     test('modules list is unmodifiable', () {
       expect(engine.modules, hasLength(1));
-      expect(() => (engine.modules as List).add(FakeModule()),
-          throwsUnsupportedError);
+      expect(
+        () => (engine.modules as List).add(FakeModule()),
+        throwsUnsupportedError,
+      );
     });
   });
 }

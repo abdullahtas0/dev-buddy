@@ -45,14 +45,12 @@ class DevBuddyEngine {
     DevBuddyConfig? config,
     EventBus? eventBus,
     CorrelationEngine? correlationEngine,
-  })  : _modules = List.unmodifiable(modules),
-        config = config ?? const DevBuddyConfig(),
-        correlationEngine = correlationEngine ?? CorrelationEngine(),
-        eventBus = eventBus ?? EventBus(maxHistory: config?.maxEvents ?? 100) {
+  }) : _modules = List.unmodifiable(modules),
+       config = config ?? const DevBuddyConfig(),
+       correlationEngine = correlationEngine ?? CorrelationEngine(),
+       eventBus = eventBus ?? EventBus(maxHistory: config?.maxEvents ?? 100) {
     _batchBuffer = BatchBuffer(onFlush: _processBatch);
-    stateStore = StateStore(
-      maxBudgetBytes: this.config.stateStoreBudgetBytes,
-    );
+    stateStore = StateStore(maxBudgetBytes: this.config.stateStoreBudgetBytes);
   }
 
   /// Register a plugin. Call before [initialize].
@@ -63,10 +61,7 @@ class DevBuddyEngine {
   /// Initialize all registered modules and plugins.
   void initialize() {
     for (final module in _modules) {
-      module.initialize(
-        config: config,
-        onEvent: _handleEvent,
-      );
+      module.initialize(config: config, onEvent: _handleEvent);
     }
     // Initialize plugins after modules (plugins may depend on module data)
     pluginRegistry.validateDependencies();
@@ -113,12 +108,8 @@ class DevBuddyEngine {
       'overall_severity': overallSeverity.name,
       'event_count': eventBus.length,
       'dropped_count': eventBus.droppedCount,
-      'modules': {
-        for (final m in _modules) m.id: m.currentState,
-      },
-      'plugins': {
-        for (final p in pluginRegistry.all) p.id: p.currentState,
-      },
+      'modules': {for (final m in _modules) m.id: m.currentState},
+      'plugins': {for (final p in pluginRegistry.all) p.id: p.currentState},
       'state_store': {
         'snapshot_count': stateStore.length,
         'used_bytes': stateStore.usedBytes,
@@ -150,9 +141,7 @@ class DevBuddyEngine {
     }
 
     // Recompute overall severity
-    _severityLevel = Severity.highest(
-      eventBus.history.map((e) => e.severity),
-    );
+    _severityLevel = Severity.highest(eventBus.history.map((e) => e.severity));
 
     // Notify Flutter wrapper (if attached)
     onStateChanged?.call(eventBus.history, overallSeverity);

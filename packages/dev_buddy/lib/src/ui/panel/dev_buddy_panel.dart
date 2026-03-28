@@ -41,15 +41,10 @@ class _DevBuddyPanelState extends State<DevBuddyPanel>
       duration: const Duration(milliseconds: 350),
       vsync: this,
     );
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 1),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(
-        parent: _slideController,
-        curve: Curves.easeOutCubic,
-      ),
-    );
+    _slideAnimation = Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero)
+        .animate(
+          CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic),
+        );
     _slideController.forward();
   }
 
@@ -153,11 +148,7 @@ class _DevBuddyPanelState extends State<DevBuddyPanel>
                 const SizedBox(height: 4),
 
                 // Module tabs + content
-                Flexible(
-                  child: ModuleTabView(
-                    controller: widget.controller,
-                  ),
-                ),
+                Flexible(child: ModuleTabView(controller: widget.controller)),
               ],
             ),
           ),
