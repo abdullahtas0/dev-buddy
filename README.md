@@ -17,7 +17,10 @@
 
 </div>
 
-<!-- TODO: Replace with animated GIF showing: app running → FPS pill → tap → panel → fix suggestion -->
+<p align="center">
+  <img src="screenshots/demo.gif" width="320" alt="DevBuddy demo: scroll, FPS monitoring, cart, inspector">
+</p>
+
 <p align="center">
   <img src="screenshots/shopbuddy_home.png" width="250" alt="ShopBuddy with DevBuddy overlay">
   <img src="screenshots/huawei_panel_events.png" width="250" alt="DevBuddy diagnostic panel">
