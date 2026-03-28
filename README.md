@@ -1,21 +1,30 @@
+<div align="center">
+
 # DevBuddy
+
+**Translates cryptic Flutter metrics into fix suggestions your team can act on — with zero setup and AI IDE integration.**
 
 [![CI](https://github.com/abdullahtas0/dev-buddy/actions/workflows/ci.yml/badge.svg)](https://github.com/abdullahtas0/dev-buddy/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Flutter](https://img.shields.io/badge/Flutter-3.10+-blue.svg)](https://flutter.dev)
-[![Dart](https://img.shields.io/badge/Dart-3.11+-blue.svg)](https://dart.dev)
+[![Flutter](https://img.shields.io/badge/Flutter-3.10+-02569B.svg?logo=flutter)](https://flutter.dev)
+[![Dart](https://img.shields.io/badge/Dart-3.11+-0175C2.svg?logo=dart)](https://dart.dev)
 ![Tests](https://img.shields.io/badge/tests-298%20passing-brightgreen)
-![Packages](https://img.shields.io/badge/packages-9-purple)
+![Packages](https://img.shields.io/badge/packages-9-7c3aed)
+![MCP](https://img.shields.io/badge/MCP-Claude%20Code%20%7C%20Cursor-F97316)
+![Zero Overhead](https://img.shields.io/badge/release-zero%20overhead-22c55e)
 
-**Unified Flutter Debugging Platform** — Not Metrics, Solutions.
+[Quick Start](#quick-start) | [AI Integration](#ai-integration-mcp) | [Architecture](#architecture) | [Contributing](CONTRIBUTING.md)
 
-The successor to ByteDance's flutter_ume. One tool to replace DevTools context-switching, scattered logging packages, and manual debugging.
+</div>
 
+<!-- TODO: Replace with animated GIF showing: app running → FPS pill → tap → panel → fix suggestion -->
 <p align="center">
   <img src="screenshots/shopbuddy_home.png" width="250" alt="ShopBuddy with DevBuddy overlay">
   <img src="screenshots/huawei_panel_events.png" width="250" alt="DevBuddy diagnostic panel">
   <img src="screenshots/huawei_panel_open.png" width="250" alt="DevBuddy panel with module tabs">
 </p>
+
+> The successor to ByteDance's flutter_ume. One tool to replace DevTools context-switching, scattered logging packages, and manual debugging. **9 packages, 298+ tests, zero runtime cost in release.**
 
 ## What Makes DevBuddy Different
 
@@ -98,7 +107,40 @@ Bloc.observer = DevBuddyBlocObserver(stateStore: engine.stateStore);
 
 ## AI Integration (MCP)
 
-DevBuddy exposes 9 MCP tools for Claude Code, Cursor, and Copilot:
+Ask your AI IDE to debug your running Flutter app. DevBuddy bridges live diagnostics to Claude Code, Cursor, and VS Code via [Model Context Protocol](https://modelcontextprotocol.io).
+
+### Setup (3 steps)
+
+**1. Add `enableMcpServer: true` (default):**
+```dart
+DevBuddyOverlayImpl(
+  enabled: kDebugMode,
+  enableMcpServer: true,  // Starts HTTP server on localhost:8585
+  modules: [ ... ],
+  child: child!,
+)
+```
+
+**2. Add `.mcp.json` to your project root:**
+```json
+{
+  "mcpServers": {
+    "dev-buddy": {
+      "command": "dart",
+      "args": ["run", "dev_buddy_mcp"]
+    }
+  }
+}
+```
+
+**3. Run your app and ask Claude:**
+```
+> "Check my running Flutter app for performance issues"
+> "What network requests are slow?"
+> "Why is the FPS dropping when I scroll?"
+```
+
+### Available Tools
 
 | Tool | What It Returns |
 |------|----------------|
@@ -112,7 +154,7 @@ DevBuddy exposes 9 MCP tools for Claude Code, Cursor, and Copilot:
 | `dev_buddy/memory` | Memory trend and leak detection |
 | `dev_buddy/errors` | Error catalog matches with fixes |
 
-All responses are **PII-sanitized** (auth headers, emails, JWT tokens automatically scrubbed).
+All responses are **PII-sanitized** (auth tokens, emails, credit cards, AWS keys automatically scrubbed). Data never leaves localhost.
 
 ## Architecture
 

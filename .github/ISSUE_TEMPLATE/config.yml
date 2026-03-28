@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Question / Discussion
+    url: https://github.com/abdullah017/dev_buddy/discussions
+    about: Ask questions and discuss ideas in GitHub Discussions
+  - name: pub.dev
+    url: https://pub.dev/packages/dev_buddy
+    about: View package on pub.dev
