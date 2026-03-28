@@ -1,4 +1,6 @@
 // packages/dev_buddy/lib/src/ui/overlay/dev_buddy_overlay.dart
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import '../../core/dev_buddy_config.dart';
 import '../../core/dev_buddy_controller.dart';
@@ -10,17 +12,6 @@ import 'draggable_pill.dart';
 
 /// The main overlay widget. Wraps the app's widget tree and displays
 /// a floating diagnostic pill + expandable panel.
-///
-/// Usage:
-/// ```dart
-/// MaterialApp(
-///   builder: (context, child) => DevBuddyOverlayImpl(
-///     enabled: kDebugMode,
-///     modules: [PerformanceModule(), ErrorTranslatorModule()],
-///     child: child!,
-///   ),
-/// )
-/// ```
 class DevBuddyOverlayImpl extends StatefulWidget {
   final Widget child;
   final bool enabled;
@@ -43,6 +34,8 @@ class _DevBuddyOverlayImplState extends State<DevBuddyOverlayImpl> {
   late DevBuddyController _controller;
   final ValueNotifier<double> _fps = ValueNotifier(0);
   bool _panelOpen = false;
+  Timer? _fpsTimer;
+  PerformanceModule? _perfModule;
 
   @override
   void initState() {
@@ -54,24 +47,27 @@ class _DevBuddyOverlayImplState extends State<DevBuddyOverlayImpl> {
       );
       _controller.initialize();
 
-      // Wire PerformanceModule's FPS to the pill display
-      _controller.events.addListener(_updateFps);
-    }
-  }
-
-  void _updateFps() {
-    for (final module in widget.modules) {
-      if (module is PerformanceModule) {
-        _fps.value = module.currentFps;
-        return;
+      // Find PerformanceModule for FPS reading
+      for (final module in widget.modules) {
+        if (module is PerformanceModule) {
+          _perfModule = module;
+          break;
+        }
       }
+
+      // Update FPS pill every 300ms (smooth, not every frame)
+      _fpsTimer = Timer.periodic(const Duration(milliseconds: 300), (_) {
+        if (_perfModule != null) {
+          _fps.value = _perfModule!.currentFps;
+        }
+      });
     }
   }
 
   @override
   void dispose() {
+    _fpsTimer?.cancel();
     if (widget.enabled) {
-      _controller.events.removeListener(_updateFps);
       _controller.dispose();
     }
     _fps.dispose();
@@ -94,17 +90,12 @@ class _DevBuddyOverlayImplState extends State<DevBuddyOverlayImpl> {
         type: MaterialType.transparency,
         child: Stack(
           children: [
-            // App content
             widget.child,
-
-            // Floating pill
             DraggablePill(
               fps: _fps,
               severity: _controller.overallSeverity,
               onTap: _togglePanel,
             ),
-
-            // Diagnostic panel (bottom sheet)
             if (_panelOpen)
               DevBuddyPanel(
                 controller: _controller,
@@ -115,7 +106,4 @@ class _DevBuddyOverlayImplState extends State<DevBuddyOverlayImpl> {
       ),
     );
   }
-
-  /// Exposes FPS notifier for PerformanceModule to update.
-  ValueNotifier<double> get fpsNotifier => _fps;
 }
