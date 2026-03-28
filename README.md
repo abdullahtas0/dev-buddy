@@ -2,52 +2,60 @@
 
 # DevBuddy
 
-**Translates cryptic Flutter metrics into fix suggestions your team can act on — with zero setup and AI IDE integration.**
+**Flutter diagnostics that tell you what's wrong and how to fix it.**
+
+Zero setup. AI-powered. Zero cost in release builds.
 
 [![CI](https://github.com/abdullahtas0/dev-buddy/actions/workflows/ci.yml/badge.svg)](https://github.com/abdullahtas0/dev-buddy/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Flutter](https://img.shields.io/badge/Flutter-3.10+-02569B.svg?logo=flutter)](https://flutter.dev)
 [![Dart](https://img.shields.io/badge/Dart-3.11+-0175C2.svg?logo=dart)](https://dart.dev)
-![Tests](https://img.shields.io/badge/tests-298%20passing-brightgreen)
+![Tests](https://img.shields.io/badge/tests-340%20passing-brightgreen)
 ![Packages](https://img.shields.io/badge/packages-9-7c3aed)
 ![MCP](https://img.shields.io/badge/MCP-Claude%20Code%20%7C%20Cursor-F97316)
-![Zero Overhead](https://img.shields.io/badge/release-zero%20overhead-22c55e)
-
-[Quick Start](#quick-start) | [AI Integration](#ai-integration-mcp) | [Architecture](#architecture) | [Contributing](CONTRIBUTING.md)
+![Zero Overhead](https://img.shields.io/badge/release-zero%20bytes-22c55e)
 
 </div>
 
 <p align="center">
-  <img src="screenshots/demo.gif" width="320" alt="DevBuddy demo: scroll, FPS monitoring, cart, inspector">
+  <video src="https://github.com/user-attachments/assets/demo_video.mp4" width="320" autoplay loop muted playsinline>
+    <img src="screenshots/hero_shop.png" width="320" alt="DevBuddy demo">
+  </video>
 </p>
 
 <p align="center">
-  <img src="screenshots/shopbuddy_home.png" width="250" alt="ShopBuddy with DevBuddy overlay">
-  <img src="screenshots/huawei_panel_events.png" width="250" alt="DevBuddy diagnostic panel">
-  <img src="screenshots/huawei_panel_open.png" width="250" alt="DevBuddy panel with module tabs">
+  <img src="screenshots/hero_shop.png" width="220" alt="FPS monitoring overlay">
+  <img src="screenshots/demo/07_panel_performance.png" width="220" alt="Jank detection with fix suggestions">
+  <img src="screenshots/hero_inspector.png" width="220" alt="AI-queryable diagnostic inspector">
 </p>
 
-> The successor to ByteDance's flutter_ume. One tool to replace DevTools context-switching, scattered logging packages, and manual debugging. **9 packages, 298+ tests, zero runtime cost in release.**
+<p align="center">
+  <sub>Live FPS overlay | Jank detection with fix suggestions | AI-queryable inspector</sub>
+</p>
 
-## What Makes DevBuddy Different
+---
 
-| Feature | DevTools | Talker | Alice/Chucker | **DevBuddy** |
-|---------|---------|--------|---------------|-------------|
-| In-app overlay | - | - | Partial | **Full** |
-| Performance monitoring | External | - | - | **Built-in** |
-| Network inspection | Basic | - | Yes | **Waterfall + Body** |
-| Error translation | - | Logging | - | **25+ patterns** |
-| Memory leak detection | External | - | - | **Built-in** |
-| State time-travel | - | - | - | **Universal** |
-| AI integration (MCP) | - | - | - | **9 tools** |
-| Accessibility audit | - | - | - | **WCAG 2.1** |
-| Plugin architecture | - | - | - | **Extensible** |
-| Release overhead | N/A | Minimal | Minimal | **Zero** |
+## Why DevBuddy?
+
+Flutter DevTools requires context switching. Logging packages show raw data. Neither tells you **what to fix**.
+
+DevBuddy runs inside your app, detects problems in real-time, and suggests specific code changes. AI IDEs like Claude Code can query it directly via MCP.
+
+| | DevTools | Talker | Alice/Chucker | **DevBuddy** |
+|-|---------|--------|---------------|-------------|
+| In-app overlay | | | Partial | **Full** |
+| FPS + jank detection | External | | | **Built-in** |
+| Network inspection | Basic | | Yes | **Headers + Body** |
+| Error translation | | Logging | | **25+ patterns** |
+| Memory leak detection | External | | | **Built-in** |
+| State time-travel | | | | **Riverpod + BLoC** |
+| AI integration (MCP) | | | | **9 tools** |
+| Widget rebuild tracking | External | | | **Per-second rate** |
+| Release overhead | N/A | Minimal | Minimal | **Zero bytes** |
 
 ## Quick Start
 
 ```yaml
-# pubspec.yaml
 dependencies:
   dev_buddy: ^0.2.0
 ```
@@ -59,39 +67,58 @@ MaterialApp(
   builder: (context, child) => DevBuddyOverlayImpl(
     enabled: kDebugMode,
     modules: [
-      PerformanceModule(),
-      ErrorTranslatorModule(),
-      NetworkModule(),
-      MemoryModule(),
-      RebuildTrackerModule(),
+      PerformanceModule(),      // FPS, jank, frame timing
+      ErrorTranslatorModule(),  // 25+ Flutter error patterns → fix suggestions
+      NetworkModule(),          // HTTP traffic monitoring
+      MemoryModule(),           // RSS tracking, leak heuristics
+      RebuildTrackerModule(),   // Widget rebuild rate per second
     ],
     child: child!,
   ),
 )
 ```
 
-That's it. In release builds, DevBuddy compiles to **zero bytes** via tree-shaking.
+In release builds, this compiles to **zero bytes** via conditional compilation and tree-shaking.
 
 ## How It Works
 
-1. DevBuddy runs **silently** in the background while you use your app
-2. A floating pill shows **live FPS** in the corner
-3. Pill turns **orange/red** when issues are detected
-4. Tap the pill → diagnostic panel opens with actionable suggestions
-5. AI tools (Claude Code, Cursor) can query diagnostics via MCP
+```
+Your App                          DevBuddy
+┌──────────────┐    ┌─────────────────────────────────┐
+│              │    │ FPS pill (live, draggable)       │
+│  Screens     │    │     ↓ tap                        │
+│  Widgets     │◄──►│ Diagnostic panel                │
+│  Network     │    │   ├ Performance (jank + FPS)     │
+│  State       │    │   ├ Errors (translated)          │
+│              │    │   ├ Network (requests + timing)  │
+│              │    │   ├ Memory (RSS + leak warning)  │
+│              │    │   └ Rebuilds (per-second rate)   │
+└──────────────┘    └─────────────────────────────────┘
+                           ↓ MCP
+                    ┌──────────────┐
+                    │ Claude Code  │
+                    │ Cursor       │
+                    │ "Fix the     │
+                    │  jank issue" │
+                    └──────────────┘
+```
 
-## Packages
+## Diagnostic Modules
 
-| Package | Version | Description |
-|---------|---------|-------------|
-| [`dev_buddy_engine`](packages/dev_buddy_engine/) | 0.2.0 | Pure Dart engine — EventBus, StateStore, analyzers, sanitization |
-| [`dev_buddy`](packages/dev_buddy/) | 0.2.0 | Flutter overlay with 5 diagnostic modules |
-| [`dev_buddy_dio`](packages/dev_buddy_dio/) | 0.2.0 | Dio HTTP interceptor with header/body capture |
-| [`dev_buddy_http`](packages/dev_buddy_http/) | 0.2.0 | http package wrapper with enriched events |
-| [`dev_buddy_riverpod`](packages/dev_buddy_riverpod/) | 0.2.0 | Riverpod state tracking for time-travel |
-| [`dev_buddy_bloc`](packages/dev_buddy_bloc/) | 0.2.0 | BLoC/Cubit state tracking for time-travel |
-| [`dev_buddy_mcp`](packages/dev_buddy_mcp/) | 0.2.0 | MCP server for AI IDE integration |
-| [`dev_buddy_devtools`](packages/dev_buddy_devtools/) | 0.2.0 | Flutter DevTools extension |
+### Performance
+Monitors frame timing via `SchedulerBinding`. Uses **vsync-to-vsync intervals** for accurate FPS (validated against DevTools: < 2 FPS delta). Detects jank, reports consecutive slow frames, and suggests fixes like `const` constructors and `ListView.builder`.
+
+### Network
+Intercepts HTTP traffic from **any client** via `HttpOverrides`. Shows request URL, status code, duration, headers, and body preview. Flags slow requests (> 2s) and auth failures.
+
+### Memory
+Samples `ProcessInfo.currentRss` every 5 seconds. Tracks peak usage, growth rate, and detects monotonic growth patterns that suggest leaks. Validated: < 6 MB delta vs OS-reported RSS.
+
+### Rebuilds
+Hooks into `debugOnRebuildDirtyWidget` to count rebuilds per widget type. Shows **per-second rate** (not misleading cumulative totals) with session duration tracking.
+
+### Errors
+Matches 25+ common Flutter error patterns (RenderFlex overflow, setState after dispose, missing MediaQuery, etc.) and translates them into human-readable explanations with fix suggestions.
 
 ## State Time-Travel
 
@@ -108,23 +135,15 @@ ProviderScope(
 Bloc.observer = DevBuddyBlocObserver(stateStore: engine.stateStore);
 ```
 
+State is stored as serialized JSON in a ring buffer with 20 MB RAM budget. Diffs are computed automatically.
+
 ## AI Integration (MCP)
 
-Ask your AI IDE to debug your running Flutter app. DevBuddy bridges live diagnostics to Claude Code, Cursor, and VS Code via [Model Context Protocol](https://modelcontextprotocol.io).
+DevBuddy bridges live diagnostics to Claude Code, Cursor, and VS Code via [Model Context Protocol](https://modelcontextprotocol.io).
 
-### Setup (3 steps)
+**1. Your app already starts the diagnostic server** (default: `enableMcpServer: true`)
 
-**1. Add `enableMcpServer: true` (default):**
-```dart
-DevBuddyOverlayImpl(
-  enabled: kDebugMode,
-  enableMcpServer: true,  // Starts HTTP server on localhost:8585
-  modules: [ ... ],
-  child: child!,
-)
-```
-
-**2. Add `.mcp.json` to your project root:**
+**2. Add `.mcp.json` to your project:**
 ```json
 {
   "mcpServers": {
@@ -136,28 +155,41 @@ DevBuddyOverlayImpl(
 }
 ```
 
-**3. Run your app and ask Claude:**
+**3. Ask your AI:**
 ```
-> "Check my running Flutter app for performance issues"
-> "What network requests are slow?"
-> "Why is the FPS dropping when I scroll?"
+"Check my Flutter app for performance issues"
+"Which network requests are slow?"
+"Why is FPS dropping when I scroll?"
 ```
 
-### Available Tools
+### 9 Diagnostic Tools
 
-| Tool | What It Returns |
-|------|----------------|
-| `dev_buddy/diagnostics` | Compact snapshot: FPS, memory, top issues |
-| `dev_buddy/suggest` | AI-friendly fix suggestions |
-| `dev_buddy/search_events` | Query events by module/severity/text |
-| `dev_buddy/search_network` | Filter requests by URL/status/duration |
-| `dev_buddy/search_state` | Query state change history |
-| `dev_buddy/detail` | Full event details (lazy loading) |
-| `dev_buddy/performance` | Frame timing and jank analysis |
-| `dev_buddy/memory` | Memory trend and leak detection |
-| `dev_buddy/errors` | Error catalog matches with fixes |
+| Tool | Returns |
+|------|---------|
+| `diagnostics` | FPS, memory, severity, top issues |
+| `suggest` | AI-friendly fix suggestions |
+| `search_events` | Events filtered by module/severity/text |
+| `search_network` | Requests with URL, status, duration |
+| `search_state` | State history for time-travel |
+| `detail` | Full event with metadata |
+| `performance` | Frame timing and jank analysis |
+| `memory` | RSS, peak, growth rate |
+| `errors` | Translated errors with fixes |
 
-All responses are **PII-sanitized** (auth tokens, emails, credit cards, AWS keys automatically scrubbed). Data never leaves localhost.
+All data is **PII-sanitized** (14 patterns: JWT, credit cards, AWS/GCP keys, emails, SSN, phone numbers). Data never leaves localhost.
+
+## Packages
+
+| Package | Description |
+|---------|-------------|
+| [`dev_buddy_engine`](packages/dev_buddy_engine/) | Pure Dart engine — zero dependencies |
+| [`dev_buddy`](packages/dev_buddy/) | Flutter overlay with 5 modules |
+| [`dev_buddy_dio`](packages/dev_buddy_dio/) | Dio interceptor (pure Dart) |
+| [`dev_buddy_http`](packages/dev_buddy_http/) | http package wrapper (pure Dart) |
+| [`dev_buddy_riverpod`](packages/dev_buddy_riverpod/) | Riverpod state tracking |
+| [`dev_buddy_bloc`](packages/dev_buddy_bloc/) | BLoC/Cubit state tracking |
+| [`dev_buddy_mcp`](packages/dev_buddy_mcp/) | MCP server for AI IDEs |
+| [`dev_buddy_devtools`](packages/dev_buddy_devtools/) | Flutter DevTools extension |
 
 ## Architecture
 
@@ -172,32 +204,25 @@ dev_buddy_engine (Pure Dart, zero deps)
     └── dev_buddy_devtools (DevTools extension)
 ```
 
-### Engine Highlights
-
-- **Adaptive Batching** — IMMEDIATE (errors), FAST (network), LAZY (metrics)
-- **State Time-Travel** — Ring buffer with 20MB RAM budget, hashCode pre-filter
-- **Cross-Signal Correlation** — 5 rules that connect jank, rebuilds, memory, network
-- **PII Sanitization** — 3-tier scrubbing before any data leaves to AI
-- **Accessibility Audit** — WCAG 2.1 touch targets, semantic labels
-- **Performance Baselines** — Auto-detect regressions between builds
-- **Crash-Safe Logging** — .jsonl audit log survives app crashes
+**Engine highlights:**
+- **Adaptive batching** — Nagle-inspired 3-tier: IMMEDIATE (errors), FAST (network), LAZY (metrics)
+- **Ring buffer state store** — 20 MB RAM budget, hashCode pre-filter, anchor/diff compression
+- **Cross-signal correlation** — 5 rules connecting jank + rebuilds, memory + navigation, network + jank
+- **Crash-safe audit log** — .jsonl format survives app crashes
+- **WCAG 2.1 accessibility audit** — Touch targets, semantic labels, image descriptions
 
 ## Development
 
 ```bash
 dart pub global activate melos
 melos bootstrap
-melos run test              # 298 tests across 9 packages
-melos run qualitycheck      # Full CI: clean + lint + test
+melos run test          # 340+ tests across 9 packages
+melos run qualitycheck  # Full CI: clean + lint + test
 ```
 
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, code style, and PR process.
-
-## Changelog
-
-See [CHANGELOG.md](CHANGELOG.md) for version history.
 
 ## License
 
