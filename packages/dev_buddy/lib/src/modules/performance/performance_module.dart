@@ -1,4 +1,5 @@
 // packages/dev_buddy/lib/src/modules/performance/performance_module.dart
+import 'dart:ui' show FramePhase;
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import '../../core/dev_buddy_config.dart';
@@ -75,6 +76,10 @@ class PerformanceModule extends DevBuddyModule {
       for (final timing in timings) {
         final duration = timing.totalSpan;
         _analyzer.addFrameDuration(duration);
+        // Record vsync timestamp for accurate FPS (vsync-to-vsync interval)
+        _analyzer.recordVsyncTimestamp(
+          timing.timestampInMicroseconds(FramePhase.vsyncStart),
+        );
 
         final result = _analyzer.analyzeFrame(
           duration: duration,
