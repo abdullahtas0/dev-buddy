@@ -175,8 +175,9 @@ class CorrelationEngine {
           .firstOrNull;
 
       if (networkTime == null || jankTime == null) return false;
-      // Jank within 2 seconds after network response
-      return jankTime.difference(networkTime).inMilliseconds.abs() < 2000;
+      // Jank must occur AFTER network response, within 2 seconds
+      final diffMs = jankTime.difference(networkTime).inMilliseconds;
+      return diffMs >= 0 && diffMs < 2000;
     },
     synthesize: (events) {
       final networkEvent = events.firstWhere(
