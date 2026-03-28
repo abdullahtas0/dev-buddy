@@ -36,6 +36,7 @@ export 'package:dev_buddy_engine/dev_buddy_engine.dart'
 export 'src/core/dev_buddy_module.dart';
 export 'src/core/dev_buddy_controller.dart';
 export 'src/core/dev_buddy_scope.dart';
+export 'src/core/diagnostic_server.dart';
 
 // Modules (Flutter hook implementations)
 export 'src/modules/performance/performance_module.dart';
