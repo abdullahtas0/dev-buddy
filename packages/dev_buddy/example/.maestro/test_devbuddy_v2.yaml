@@ -1,0 +1,73 @@
+appId: com.devbuddy.devBuddyExample
+---
+
+# DevBuddy v2.0 Full E2E Test
+
+- launchApp
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible: "DevBuddy Demos"
+    timeout: 15000
+
+# === HOME SCREEN ===
+- assertVisible: "DevBuddy Demos"
+- assertVisible: "Jank Demo.*"
+- takeScreenshot: v2_01_home
+
+# === JANK DEMO ===
+- tapOn: "Jank Demo.*"
+- waitForAnimationToEnd
+- takeScreenshot: v2_02_jank
+- scroll
+- takeScreenshot: v2_03_jank_scrolled
+- back
+- extendedWaitUntil:
+    visible: "DevBuddy Demos"
+    timeout: 10000
+
+# === ERROR DEMO ===
+- tapOn: "Error Demo.*"
+- waitForAnimationToEnd
+- takeScreenshot: v2_04_error
+- back
+- extendedWaitUntil:
+    visible: "DevBuddy Demos"
+    timeout: 10000
+
+# === NETWORK DEMO ===
+- tapOn: "Network Demo.*"
+- waitForAnimationToEnd
+- takeScreenshot: v2_05_network
+- back
+- extendedWaitUntil:
+    visible: "DevBuddy Demos"
+    timeout: 10000
+
+# Scroll to v2.0 features
+- scroll
+
+# === ENGINE SNAPSHOT DEMO ===
+- tapOn: "Engine Snapshot.*"
+- waitForAnimationToEnd
+- tapOn: "Get Snapshot"
+- waitForAnimationToEnd
+- takeScreenshot: v2_06_engine_snapshot
+- back
+- extendedWaitUntil:
+    visible: "DevBuddy Demos"
+    timeout: 10000
+
+# === CORRELATION DEMO ===
+- scroll
+- tapOn: "Correlation Demo.*"
+- waitForAnimationToEnd
+- takeScreenshot: v2_07_correlation
+- back
+- extendedWaitUntil:
+    visible: "DevBuddy Demos"
+    timeout: 10000
+
+# === DEVBUDDY PANEL ===
+- tapOn: ".*FPS.*"
+- waitForAnimationToEnd
+- takeScreenshot: v2_08_panel
