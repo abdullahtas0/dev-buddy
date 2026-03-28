@@ -286,6 +286,11 @@ class McpTools {
           .take(limit)
           .map(
             (e) => {
+              'url': sanitizer.sanitizeValue(
+                e.metadata?['url']?.toString() ?? '',
+              ),
+              'status_code': e.metadata?['status_code'],
+              'duration_ms': e.metadata?['duration_ms'],
               'title': sanitizer.sanitizeValue(e.title),
               'severity': e.severity.name,
               'timestamp': e.timestamp.toIso8601String(),

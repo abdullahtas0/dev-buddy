@@ -89,7 +89,7 @@ class DevBuddyServiceExtensions {
     ServiceExtensionResponse Function() handler,
   ) {
     if (_engine == null) {
-      return ServiceExtensionResponse.error(0, 'Engine not available');
+      return ServiceExtensionResponse.error(-1, 'Engine not available');
     }
     try {
       return handler();

@@ -74,7 +74,7 @@ class DevBuddyDiagnosticServer {
     _server = null;
   }
 
-  void _handleRequest(HttpRequest request) async {
+  Future<void> _handleRequest(HttpRequest request) async {
     request.response.headers
       ..set('Access-Control-Allow-Origin', '*')
       ..set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
@@ -90,27 +90,27 @@ class DevBuddyDiagnosticServer {
     try {
       switch (request.uri.path) {
         case '/health':
-          _json(request, {'status': 'ok', 'engine': 'running'});
+          await _json(request, {'status': 'ok', 'engine': 'running'});
 
         case '/snapshot':
-          _json(request, engine.snapshot());
+          await _json(request, engine.snapshot());
 
         case '/events':
-          _handleEvents(request);
+          await _handleEvents(request);
 
         case '/tool':
           await _handleTool(request);
 
         case '/tools':
-          _json(request, {'tools': _toolNames});
+          await _json(request, {'tools': _toolNames});
 
         default:
           request.response.statusCode = 404;
-          _json(request, {'error': 'Not found: ${request.uri.path}'});
+          await _json(request, {'error': 'Not found: ${request.uri.path}'});
       }
     } catch (e) {
       request.response.statusCode = 500;
-      _json(request, {'error': e.toString()});
+      await _json(request, {'error': e.toString()});
     }
   }
 
@@ -128,32 +128,60 @@ class DevBuddyDiagnosticServer {
     'dev_buddy/errors',
   ];
 
+  /// Maximum request body size (64 KB). Prevents OOM from oversized POST.
+  static const _maxBodyBytes = 64 * 1024;
+
   Future<void> _handleTool(HttpRequest request) async {
     if (request.method != 'POST') {
       request.response.statusCode = 405;
-      _json(request, {'error': 'POST required'});
+      await _json(request, {'error': 'POST required'});
       return;
     }
 
-    final body = await utf8.decodeStream(request);
-    final json = jsonDecode(body) as Map<String, dynamic>;
-    final tool = json['tool'] as String?;
-    final params = (json['params'] as Map<String, dynamic>?) ?? {};
+    // Read body with size limit
+    final bytes = <int>[];
+    await for (final chunk in request) {
+      bytes.addAll(chunk);
+      if (bytes.length > _maxBodyBytes) {
+        request.response.statusCode = 413;
+        await _json(request, {'error': 'Request body too large'});
+        return;
+      }
+    }
+    final body = utf8.decode(bytes);
+
+    // Parse JSON safely
+    final Object? decoded;
+    try {
+      decoded = jsonDecode(body);
+    } on FormatException {
+      request.response.statusCode = 400;
+      await _json(request, {'error': 'Invalid JSON body'});
+      return;
+    }
+    if (decoded is! Map<String, dynamic>) {
+      request.response.statusCode = 400;
+      await _json(request, {'error': 'Expected JSON object'});
+      return;
+    }
+
+    final tool = decoded['tool'] as String?;
+    final params = (decoded['params'] as Map<String, dynamic>?) ?? {};
 
     if (tool == null) {
       request.response.statusCode = 400;
-      _json(request, {'error': 'Missing "tool" field'});
+      await _json(request, {'error': 'Missing "tool" field'});
       return;
     }
 
     final result = _dispatchTool(tool, params);
     if (result == null) {
       request.response.statusCode = 404;
-      _json(request, {'error': 'Unknown tool: $tool'});
+      await _json(request, {'error': 'Unknown tool: $tool'});
       return;
     }
 
-    _json(request, result);
+    await _json(request, result);
   }
 
   Map<String, dynamic>? _dispatchTool(
@@ -306,6 +334,11 @@ class DevBuddyDiagnosticServer {
           .take(limit)
           .map(
             (e) => {
+              'url': _sanitizer.sanitizeValue(
+                e.metadata?['url']?.toString() ?? '',
+              ),
+              'status_code': e.metadata?['status_code'],
+              'duration_ms': e.metadata?['duration_ms'],
               'title': _sanitizer.sanitizeValue(e.title),
               'severity': e.severity.name,
               'timestamp': e.timestamp.toIso8601String(),
@@ -433,7 +466,7 @@ class DevBuddyDiagnosticServer {
 
   // ── Events endpoint ───────────────────────────────────────────────
 
-  void _handleEvents(HttpRequest request) {
+  Future<void> _handleEvents(HttpRequest request) async {
     final module = request.uri.queryParameters['module'];
     final limit =
         int.tryParse(request.uri.queryParameters['limit'] ?? '20') ?? 20;
@@ -443,14 +476,14 @@ class DevBuddyDiagnosticServer {
       events = events.where((e) => e.module == module).toList();
     }
 
-    _json(request, {
+    await _json(request, {
       'total': events.length,
       'events': events.take(limit).map((e) => e.toJson()).toList(),
     });
   }
 
-  void _json(HttpRequest request, Map<String, dynamic> data) {
+  Future<void> _json(HttpRequest request, Map<String, dynamic> data) async {
     request.response.write(jsonEncode(data));
-    request.response.close();
+    await request.response.close();
   }
 }
