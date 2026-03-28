@@ -1,33 +1,42 @@
-// packages/dev_buddy/example/lib/main.dart
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:dev_buddy/dev_buddy.dart';
 
-import 'pages/correlation_demo_page.dart';
-import 'pages/engine_demo_page.dart';
-import 'pages/error_demo_page.dart';
-import 'pages/jank_demo_page.dart';
-import 'pages/memory_demo_page.dart';
-import 'pages/network_demo_page.dart';
-import 'pages/rebuild_demo_page.dart';
+import 'screens/product_list_screen.dart';
+import 'screens/cart_screen.dart';
+import 'screens/inspector_screen.dart';
 
 void main() {
   runApp(const DevBuddyExampleApp());
 }
 
+/// A realistic mini e-commerce app ("ShopBuddy") that demonstrates
+/// how DevBuddy works in a real application.
+///
+/// DevBuddy runs silently in the background. The floating pill in
+/// the corner shows live FPS. Tap it to open the diagnostic panel
+/// and see what issues DevBuddy has detected.
+///
+/// The app has intentional but realistic performance problems:
+/// - Product grid: no const constructors → excessive rebuilds
+/// - Product images: full resolution → memory growth
+/// - Cart: setState rebuilds entire list → jank on quantity changes
+/// - Checkout: slow API → 3s network delay
 class DevBuddyExampleApp extends StatelessWidget {
   const DevBuddyExampleApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'DevBuddy Example',
+      title: 'ShopBuddy',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
         colorSchemeSeed: Colors.deepPurple,
         brightness: Brightness.light,
       ),
+      // === DevBuddy Setup (1 line) ===
+      // Wraps the entire app. In release builds, this compiles to zero.
       builder: (context, child) => DevBuddyOverlayImpl(
         enabled: kDebugMode,
         modules: [
@@ -39,193 +48,51 @@ class DevBuddyExampleApp extends StatelessWidget {
         ],
         child: child!,
       ),
-      home: const HomePage(),
+      home: const _ShopBuddyHome(),
     );
   }
 }
 
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+class _ShopBuddyHome extends StatefulWidget {
+  const _ShopBuddyHome();
+
+  @override
+  State<_ShopBuddyHome> createState() => _ShopBuddyHomeState();
+}
+
+class _ShopBuddyHomeState extends State<_ShopBuddyHome> {
+  int _currentIndex = 0;
+
+  final _screens = const [
+    ProductListScreen(),
+    CartScreen(),
+    InspectorScreen(),
+  ];
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('DevBuddy Demos'),
-        centerTitle: true,
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          Text(
-            'Tap a demo to trigger intentional issues.\n'
-            'Open the DevBuddy overlay pill to see diagnostics.',
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-            textAlign: TextAlign.center,
+      body: _screens[_currentIndex],
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _currentIndex,
+        onDestinationSelected: (i) => setState(() => _currentIndex = i),
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.storefront_outlined),
+            selectedIcon: Icon(Icons.storefront),
+            label: 'Shop',
           ),
-          const SizedBox(height: 24),
-          _DemoCard(
-            icon: Icons.speed,
-            title: 'Jank Demo',
-            subtitle: 'ListView with 1000 heavy items using BoxShadow and '
-                'Opacity widgets. Triggers the Performance module.',
-            color: Colors.orange,
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const JankDemoPage()),
-            ),
+          NavigationDestination(
+            icon: Icon(Icons.shopping_cart_outlined),
+            selectedIcon: Icon(Icons.shopping_cart),
+            label: 'Cart',
           ),
-          _DemoCard(
-            icon: Icons.bug_report,
-            title: 'Error Demo',
-            subtitle: 'Overflow errors and setState-after-dispose. '
-                'Triggers the Error Translator module.',
-            color: Colors.red,
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const ErrorDemoPage()),
-            ),
-          ),
-          _DemoCard(
-            icon: Icons.wifi,
-            title: 'Network Demo',
-            subtitle: 'Simulates slow API calls, 401, 404, and 500 errors. '
-                'Triggers the Network module.',
-            color: Colors.blue,
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const NetworkDemoPage()),
-            ),
-          ),
-          _DemoCard(
-            icon: Icons.memory,
-            title: 'Memory Demo',
-            subtitle: 'Creates TextEditingControllers in a loop without '
-                'disposing them. Triggers the Memory module.',
-            color: Colors.purple,
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const MemoryDemoPage()),
-            ),
-          ),
-          _DemoCard(
-            icon: Icons.refresh,
-            title: 'Rebuild Demo',
-            subtitle: 'Widget that calls setState every 100ms causing '
-                'excessive rebuilds. Triggers the Rebuild Tracker module.',
-            color: Colors.teal,
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const RebuildDemoPage()),
-            ),
-          ),
-          const Divider(height: 32),
-          Text(
-            'v2.0 Features',
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 12),
-          _DemoCard(
-            icon: Icons.camera,
-            title: 'Engine Snapshot',
-            subtitle: 'Query the DevBuddyEngine API directly. '
-                'Shows what MCP tools (Claude Code) see.',
-            color: Colors.indigo,
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const EngineDemoPage()),
-            ),
-          ),
-          _DemoCard(
-            icon: Icons.hub,
-            title: 'Correlation Demo',
-            subtitle: 'Trigger compound scenarios (jank+rebuilds, '
-                'memory growth) and see cross-signal insights.',
-            color: Colors.deepOrange,
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const CorrelationDemoPage()),
-            ),
+          NavigationDestination(
+            icon: Icon(Icons.bug_report_outlined),
+            selectedIcon: Icon(Icons.bug_report),
+            label: 'Inspector',
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _DemoCard extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final Color color;
-  final VoidCallback onTap;
-
-  const _DemoCard({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.color,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      clipBehavior: Clip.antiAlias,
-      elevation: 1,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(icon, color: color),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      subtitle,
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Icon(
-                Icons.chevron_right,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
