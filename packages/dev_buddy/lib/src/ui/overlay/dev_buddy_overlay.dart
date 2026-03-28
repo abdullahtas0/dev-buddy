@@ -100,6 +100,8 @@ class _DevBuddyOverlayImplState extends State<DevBuddyOverlayImpl> {
     setState(() {
       _panelOpen = !_panelOpen;
     });
+    // Notify PerformanceModule about panel state to suppress Observer Effect
+    _perfModule?.setPanelOpen(_panelOpen);
   }
 
   @override

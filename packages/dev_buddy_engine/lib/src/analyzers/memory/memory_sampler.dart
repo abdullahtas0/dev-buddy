@@ -14,6 +14,10 @@ class MemorySampler {
   List<int> get samples => _samples.toList();
   int get latestMb => _samples.isEmpty ? 0 : _samples.last;
 
+  /// Peak memory observed in the current window.
+  int get peakMb =>
+      _samples.isEmpty ? 0 : _samples.reduce((a, b) => a > b ? a : b);
+
   void addSample(int memoryMb) {
     _samples.addLast(memoryMb);
     if (_samples.length > maxSamples) {
