@@ -8,9 +8,14 @@ on:
         required: true
         type: choice
         options:
+          - dev_buddy_engine
           - dev_buddy
           - dev_buddy_dio
           - dev_buddy_http
+          - dev_buddy_bloc
+          - dev_buddy_riverpod
+          - dev_buddy_mcp
+          - dev_buddy_devtools
       dry_run:
         description: 'Dry run only'
         required: true

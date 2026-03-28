@@ -4,14 +4,13 @@ import 'package:test/test.dart';
 DevBuddyEvent _event({
   String module = 'test',
   Severity severity = Severity.info,
-}) =>
-    DevBuddyEvent(
-      module: module,
-      severity: severity,
-      title: 'Test',
-      description: 'desc',
-      suggestions: ['fix'],
-    );
+}) => DevBuddyEvent(
+  module: module,
+  severity: severity,
+  title: 'Test',
+  description: 'desc',
+  suggestions: ['fix'],
+);
 
 void main() {
   group('BatchBuffer', () {
@@ -26,8 +25,10 @@ void main() {
     tearDown(() => buffer.dispose());
 
     test('immediate priority flushes instantly', () {
-      buffer.add(_event(severity: Severity.critical),
-          priority: EventPriority.immediate);
+      buffer.add(
+        _event(severity: Severity.critical),
+        priority: EventPriority.immediate,
+      );
 
       expect(flushedBatches, hasLength(1));
       expect(flushedBatches.first, hasLength(1));
@@ -37,8 +38,10 @@ void main() {
       buffer.add(_event(module: 'perf'), priority: EventPriority.lazy);
       buffer.add(_event(module: 'perf'), priority: EventPriority.lazy);
       // Immediate event triggers flush of ALL buffered events
-      buffer.add(_event(severity: Severity.critical),
-          priority: EventPriority.immediate);
+      buffer.add(
+        _event(severity: Severity.critical),
+        priority: EventPriority.immediate,
+      );
 
       expect(flushedBatches, hasLength(1));
       expect(flushedBatches.first, hasLength(3));

@@ -35,16 +35,24 @@ class ProductDetailScreen extends StatelessWidget {
                 children: [
                   Text(
                     product.name,
-                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      ...List.generate(5, (i) => Icon(
-                        i < product.rating.round() ? Icons.star : Icons.star_border,
-                        color: Colors.amber,
-                        size: 20,
-                      )),
+                      ...List.generate(
+                        5,
+                        (i) => Icon(
+                          i < product.rating.round()
+                              ? Icons.star
+                              : Icons.star_border,
+                          color: Colors.amber,
+                          size: 20,
+                        ),
+                      ),
                       const SizedBox(width: 8),
                       Text(
                         '${product.reviewCount} reviews',
@@ -64,7 +72,11 @@ class ProductDetailScreen extends StatelessWidget {
                   const SizedBox(height: 16),
                   Text(
                     product.description,
-                    style: TextStyle(fontSize: 15, color: Colors.grey.shade700, height: 1.5),
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Colors.grey.shade700,
+                      height: 1.5,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Text(
@@ -86,7 +98,10 @@ class ProductDetailScreen extends StatelessWidget {
                         );
                       },
                       icon: const Icon(Icons.add_shopping_cart),
-                      label: const Text('Add to Cart', style: TextStyle(fontSize: 16)),
+                      label: const Text(
+                        'Add to Cart',
+                        style: TextStyle(fontSize: 16),
+                      ),
                     ),
                   ),
                 ],

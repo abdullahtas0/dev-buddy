@@ -80,8 +80,9 @@ class _DraggablePillState extends State<DraggablePill> {
                 padding: DevBuddyTheme.pillPadding,
                 decoration: BoxDecoration(
                   color: DevBuddyTheme.colorForSeverity(severity),
-                  borderRadius:
-                      BorderRadius.circular(DevBuddyTheme.pillBorderRadius),
+                  borderRadius: BorderRadius.circular(
+                    DevBuddyTheme.pillBorderRadius,
+                  ),
                   boxShadow: const [DevBuddyTheme.pillShadow],
                 ),
                 child: Text(

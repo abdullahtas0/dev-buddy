@@ -1,4 +1,5 @@
 // packages/dev_buddy/lib/src/modules/network/network_module.dart
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import '../../core/dev_buddy_config.dart';
@@ -24,6 +25,7 @@ class NetworkModule extends DevBuddyModule {
   late void Function(DevBuddyEvent) _onEvent;
   HttpOverrides? _previousOverrides;
   final List<NetworkRequestEvent> _requests = [];
+  Timer? _cleanupTimer;
   static const int _maxRequests = 50;
 
   @override
@@ -39,12 +41,27 @@ class NetworkModule extends DevBuddyModule {
       onEvent: _handleNetworkEvent,
       previous: _previousOverrides,
     );
+
+    // Periodic cleanup prevents orphaned request data from accumulating
+    // during idle periods with occasional bursts.
+    _cleanupTimer = Timer.periodic(
+      const Duration(seconds: 60),
+      (_) => _trimRequests(),
+    );
   }
 
   @override
   void dispose() {
+    _cleanupTimer?.cancel();
+    _cleanupTimer = null;
     HttpOverrides.global = _previousOverrides;
     _requests.clear();
+  }
+
+  void _trimRequests() {
+    if (_requests.length > _maxRequests) {
+      _requests.removeRange(_maxRequests, _requests.length);
+    }
   }
 
   void _handleNetworkEvent(NetworkRequestEvent request) {
@@ -57,14 +74,16 @@ class NetworkModule extends DevBuddyModule {
 
     // Only emit events for non-trivial findings
     if (analysis.severity.isAtLeast(Severity.warning)) {
-      _onEvent(DevBuddyEvent(
-        module: id,
-        severity: analysis.severity,
-        title: analysis.title,
-        description: analysis.description,
-        suggestions: analysis.suggestions,
-        metadata: request.toJson(),
-      ));
+      _onEvent(
+        DevBuddyEvent(
+          module: id,
+          severity: analysis.severity,
+          title: analysis.title,
+          description: analysis.description,
+          suggestions: analysis.suggestions,
+          metadata: request.toJson(),
+        ),
+      );
     }
   }
 
@@ -79,8 +98,10 @@ class NetworkModule extends DevBuddyModule {
             children: [
               Icon(Icons.cloud_off, size: 48, color: Colors.grey),
               SizedBox(height: 12),
-              Text('No network requests captured',
-                  style: TextStyle(fontSize: 14, color: Colors.grey)),
+              Text(
+                'No network requests captured',
+                style: TextStyle(fontSize: 14, color: Colors.grey),
+              ),
             ],
           ),
         ),
@@ -108,8 +129,8 @@ class _NetworkRequestTile extends StatelessWidget {
     final color = request.isSuccess
         ? Colors.green
         : request.isError
-            ? Colors.red
-            : Colors.orange;
+        ? Colors.red
+        : Colors.orange;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 6),
@@ -126,7 +147,10 @@ class _NetworkRequestTile extends StatelessWidget {
               child: Text(
                 '${request.statusCode ?? 'ERR'}',
                 style: TextStyle(
-                    fontSize: 11, fontWeight: FontWeight.w700, color: color),
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: color,
+                ),
               ),
             ),
             const SizedBox(width: 8),
@@ -136,9 +160,13 @@ class _NetworkRequestTile extends StatelessWidget {
                 color: Colors.grey.shade100,
                 borderRadius: BorderRadius.circular(3),
               ),
-              child: Text(request.method,
-                  style: const TextStyle(
-                      fontSize: 10, fontWeight: FontWeight.w600)),
+              child: Text(
+                request.method,
+                style: const TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
             const SizedBox(width: 8),
             Expanded(

@@ -24,17 +24,51 @@ class DataSanitizer {
     'proxy-authorization',
   };
 
-  /// PII detection patterns.
+  /// PII detection patterns — ordered from most specific to broadest.
   static final _piiPatterns = [
-    _PiiPattern(RegExp(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b'), '[EMAIL]'),
+    // Payment cards
     _PiiPattern(RegExp(r'\b4[0-9]{12}(?:[0-9]{3})?\b'), '[VISA_CARD]'),
     _PiiPattern(RegExp(r'\b5[1-5][0-9]{14}\b'), '[MC_CARD]'),
     _PiiPattern(RegExp(r'\b3[47][0-9]{13}\b'), '[AMEX_CARD]'),
-    _PiiPattern(RegExp(r'eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+'), '[JWT_TOKEN]'),
+    // Tokens & keys
+    _PiiPattern(
+      RegExp(r'eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+'),
+      '[JWT_TOKEN]',
+    ),
     _PiiPattern(RegExp(r'Bearer\s+\S+', caseSensitive: false), '[AUTH_TOKEN]'),
     _PiiPattern(RegExp(r'AKIA[0-9A-Z]{16}'), '[AWS_KEY]'),
-    _PiiPattern(RegExp(r'(?:sk_live_|sk_test_|pk_live_|rk_live_)\w{20,}', caseSensitive: false), '[STRIPE_KEY]'),
-    _PiiPattern(RegExp(r'(?:password|secret|api_key|apikey)\s*[:=]\s*\S{8,}', caseSensitive: false), '[SECRET]'),
+    _PiiPattern(RegExp(r'AIza[0-9A-Za-z_-]{35}'), '[GCP_API_KEY]'),
+    _PiiPattern(
+      RegExp(
+        r'(?:sk_live_|sk_test_|pk_live_|rk_live_)\w{20,}',
+        caseSensitive: false,
+      ),
+      '[STRIPE_KEY]',
+    ),
+    _PiiPattern(RegExp(r'ghp_[A-Za-z0-9]{36}'), '[GITHUB_TOKEN]'),
+    // Personal data
+    _PiiPattern(
+      RegExp(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b'),
+      '[EMAIL]',
+    ),
+    _PiiPattern(RegExp(r'\b\d{3}-\d{2}-\d{4}\b'), '[SSN]'),
+    _PiiPattern(
+      RegExp(r'\b(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}\b'),
+      '[PHONE]',
+    ),
+    // Generic secrets
+    _PiiPattern(
+      RegExp(
+        r'(?:password|secret|api_key|apikey|token)\s*[:=]\s*\S{8,}',
+        caseSensitive: false,
+      ),
+      '[SECRET]',
+    ),
+  ];
+
+  /// Additional patterns applied only in strict mode.
+  static final _strictPatterns = [
+    _PiiPattern(RegExp(r'\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b'), '[IP_ADDR]'),
   ];
 
   /// Sanitize a map of HTTP headers.
@@ -44,7 +78,10 @@ class DataSanitizer {
       if (_sensitiveHeaders.contains(key.toLowerCase())) {
         return MapEntry(key, '[REDACTED]');
       }
-      return MapEntry(key, level == SanitizationLevel.strict ? _scrubPii(value) : value);
+      return MapEntry(
+        key,
+        level == SanitizationLevel.strict ? _scrubPii(value) : value,
+      );
     });
   }
 
@@ -61,7 +98,8 @@ class DataSanitizer {
 
     // Truncation
     if (result.length > maxBodyLength) {
-      result = '${result.substring(0, maxBodyLength)}... [TRUNCATED ${result.length - maxBodyLength} chars]';
+      result =
+          '${result.substring(0, maxBodyLength)}... [TRUNCATED ${result.length - maxBodyLength} chars]';
     }
 
     return result;
@@ -77,6 +115,11 @@ class DataSanitizer {
     var result = input;
     for (final pattern in _piiPatterns) {
       result = result.replaceAll(pattern.regex, pattern.replacement);
+    }
+    if (level == SanitizationLevel.strict) {
+      for (final pattern in _strictPatterns) {
+        result = result.replaceAll(pattern.regex, pattern.replacement);
+      }
     }
     return result;
   }

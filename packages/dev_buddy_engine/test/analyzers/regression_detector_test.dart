@@ -6,15 +6,14 @@ PerformanceBaseline _baseline({
   double frameMs = 16,
   int rebuilds = 20,
   int memoryMb = 100,
-}) =>
-    PerformanceBaseline(
-      screenName: '/home',
-      medianFps: fps,
-      p95FrameDurationMs: frameMs,
-      medianRebuildCount: rebuilds,
-      medianMemoryMb: memoryMb,
-      recordedAt: DateTime.now(),
-    );
+}) => PerformanceBaseline(
+  screenName: '/home',
+  medianFps: fps,
+  p95FrameDurationMs: frameMs,
+  medianRebuildCount: rebuilds,
+  medianMemoryMb: memoryMb,
+  recordedAt: DateTime.now(),
+);
 
 void main() {
   group('RegressionDetector', () {
@@ -73,7 +72,12 @@ void main() {
     });
 
     test('baseline serialization round-trip', () {
-      final original = _baseline(fps: 59.5, frameMs: 17.2, rebuilds: 15, memoryMb: 120);
+      final original = _baseline(
+        fps: 59.5,
+        frameMs: 17.2,
+        rebuilds: 15,
+        memoryMb: 120,
+      );
       final json = original.toJson();
       final restored = PerformanceBaseline.fromJson(json);
 

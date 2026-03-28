@@ -26,62 +26,81 @@ class DevBuddyServiceExtensions {
     _registered = true;
 
     registerExtension('ext.dev_buddy.snapshot', (method, params) async {
-      if (_engine == null) {
-        return ServiceExtensionResponse.error(0, 'Engine not available');
-      }
-      return ServiceExtensionResponse.result(
-        jsonEncode(_engine!.snapshot()),
-      );
+      return _safeHandle(() {
+        return ServiceExtensionResponse.result(jsonEncode(_engine!.snapshot()));
+      });
     });
 
     registerExtension('ext.dev_buddy.events', (method, params) async {
-      if (_engine == null) {
-        return ServiceExtensionResponse.error(0, 'Engine not available');
-      }
-      final limit = int.tryParse(params['limit'] ?? '20') ?? 20;
-      final module = params['module'];
+      return _safeHandle(() {
+        final limit = int.tryParse(params['limit'] ?? '20') ?? 20;
+        final module = params['module'];
 
-      var events = _engine!.eventBus.history;
-      if (module != null) {
-        events = events.where((e) => e.module == module).toList();
-      }
+        var events = _engine!.eventBus.history;
+        if (module != null) {
+          events = events.where((e) => e.module == module).toList();
+        }
 
-      return ServiceExtensionResponse.result(
-        jsonEncode({
-          'total': events.length,
-          'events': events.take(limit).map((e) => e.toJson()).toList(),
-        }),
-      );
+        return ServiceExtensionResponse.result(
+          jsonEncode({
+            'total': events.length,
+            'events': events.take(limit).map((e) => e.toJson()).toList(),
+          }),
+        );
+      });
     });
 
     registerExtension('ext.dev_buddy.state', (method, params) async {
-      if (_engine == null) {
-        return ServiceExtensionResponse.error(0, 'Engine not available');
-      }
-      final limit = int.tryParse(params['limit'] ?? '10') ?? 10;
-      final source = params['source'];
+      return _safeHandle(() {
+        final limit = int.tryParse(params['limit'] ?? '10') ?? 10;
+        final source = params['source'];
 
-      var snapshots = _engine!.stateStore.history;
-      if (source != null) {
-        snapshots = snapshots.where((s) => s.source.contains(source)).toList();
-      }
+        var snapshots = _engine!.stateStore.history;
+        if (source != null) {
+          snapshots = snapshots
+              .where((s) => s.source.contains(source))
+              .toList();
+        }
 
-      return ServiceExtensionResponse.result(
-        jsonEncode({
-          'total': snapshots.length,
-          'budget_usage': _engine!.stateStore.budgetUsagePercent,
-          'snapshots': snapshots.take(limit).map((s) => s.toJson()).toList(),
-        }),
-      );
+        return ServiceExtensionResponse.result(
+          jsonEncode({
+            'total': snapshots.length,
+            'budget_usage': _engine!.stateStore.budgetUsagePercent,
+            'snapshots': snapshots.take(limit).map((s) => s.toJson()).toList(),
+          }),
+        );
+      });
     });
 
     registerExtension('ext.dev_buddy.clear', (method, params) async {
-      if (_engine == null) {
-        return ServiceExtensionResponse.error(0, 'Engine not available');
-      }
-      _engine!.clearEvents();
-      _engine!.stateStore.clear();
-      return ServiceExtensionResponse.result(jsonEncode({'cleared': true}));
+      return _safeHandle(() {
+        _engine!.clearEvents();
+        _engine!.stateStore.clear();
+        return ServiceExtensionResponse.result(jsonEncode({'cleared': true}));
+      });
     });
+  }
+
+  /// Wraps a service extension handler with error safety.
+  ///
+  /// Catches all exceptions (including [jsonEncode] failures) and returns
+  /// a structured error response instead of crashing the extension.
+  static ServiceExtensionResponse _safeHandle(
+    ServiceExtensionResponse Function() handler,
+  ) {
+    if (_engine == null) {
+      return ServiceExtensionResponse.error(0, 'Engine not available');
+    }
+    try {
+      return handler();
+    } catch (e, stack) {
+      return ServiceExtensionResponse.error(
+        -1,
+        jsonEncode({
+          'error': e.toString(),
+          'stack': stack.toString().split('\n').take(5).join('\n'),
+        }),
+      );
+    }
   }
 }

@@ -19,6 +19,6 @@ class DevBuddyReport {
     required List<DevBuddyEvent> events,
     required this.generatedAt,
     Map<String, dynamic> deviceInfo = const {},
-  })  : events = List.unmodifiable(events),
-        deviceInfo = Map.unmodifiable(deviceInfo);
+  }) : events = List.unmodifiable(events),
+       deviceInfo = Map.unmodifiable(deviceInfo);
 }

@@ -39,7 +39,7 @@ class CorrelationEngine {
   final Set<String> _firedRules = {};
 
   CorrelationEngine({List<CorrelationRule>? rules})
-      : _rules = rules ?? defaultRules;
+    : _rules = List.of(rules ?? defaultRules);
 
   /// Evaluate all rules against recent events.
   /// Returns newly synthesized compound events (may be empty).
@@ -65,6 +65,51 @@ class CorrelationEngine {
   /// Number of registered rules.
   int get ruleCount => _rules.length;
 
+  /// Immutable view of current rules.
+  List<CorrelationRule> get rules => List.unmodifiable(_rules);
+
+  /// Add a rule at runtime. Throws if a rule with the same [id] exists.
+  void addRule(CorrelationRule rule) {
+    if (_rules.any((r) => r.id == rule.id)) {
+      throw ArgumentError('Rule with id "${rule.id}" already registered');
+    }
+    _rules.add(rule);
+  }
+
+  /// Remove a rule by [id]. Returns true if removed, false if not found.
+  bool removeRule(String id) {
+    final index = _rules.indexWhere((r) => r.id == id);
+    if (index == -1) return false;
+    _rules.removeAt(index);
+    _firedRules.remove(id);
+    return true;
+  }
+
+  /// Replace all rules with a new set. Resets fired tracking.
+  void replaceRules(List<CorrelationRule> rules) {
+    _rules
+      ..clear()
+      ..addAll(rules);
+    _firedRules.clear();
+  }
+
+  // ==========================================================================
+  // Constants for rule thresholds
+  // ==========================================================================
+
+  /// Maximum time window (ms) between a slow network response and jank
+  /// for them to be considered correlated.
+  static const int networkJankWindowMs = 2000;
+
+  /// Minimum number of 401 responses to trigger the broken-auth rule.
+  static const int authFailureThreshold = 3;
+
+  /// Minimum response size (bytes) to trigger the large-response rule.
+  static const int largeResponseThresholdBytes = 500 * 1024; // 500 KB
+
+  /// Minimum navigation events to correlate with memory growth.
+  static const int minNavEventsForCorrelation = 2;
+
   // ==========================================================================
   // Built-in Correlation Rules
   // ==========================================================================
@@ -82,8 +127,13 @@ class CorrelationEngine {
     id: 'jank_plus_rebuilds',
     name: 'Jank + Excessive Rebuilds',
     matches: (events) {
-      final hasJank = events.any((e) => e.module == 'performance' && e.severity.isAtLeast(Severity.warning));
-      final hasRebuilds = events.any((e) => e.module == 'rebuilds' && e.severity.isAtLeast(Severity.warning));
+      final hasJank = events.any(
+        (e) =>
+            e.module == 'performance' && e.severity.isAtLeast(Severity.warning),
+      );
+      final hasRebuilds = events.any(
+        (e) => e.module == 'rebuilds' && e.severity.isAtLeast(Severity.warning),
+      );
       return hasJank && hasRebuilds;
     },
     synthesize: (events) {
@@ -92,14 +142,18 @@ class CorrelationEngine {
       );
       final topRebuilders = rebuildEvent.metadata?['top_rebuilders'];
       final widgetNames = topRebuilders is List
-          ? topRebuilders.take(3).map((r) => r is Map ? r['widget'] : r).join(', ')
+          ? topRebuilders
+                .take(3)
+                .map((r) => r is Map ? r['widget'] : r)
+                .join(', ')
           : 'unknown widgets';
 
       return DevBuddyEvent(
         module: 'correlation',
         severity: Severity.critical,
         title: 'Excessive Rebuilds Causing UI Jank',
-        description: 'Widgets [$widgetNames] are rebuilding excessively, '
+        description:
+            'Widgets [$widgetNames] are rebuilding excessively, '
             'which is directly causing frame drops and visible jank.',
         suggestions: [
           'Add const constructors to frequently rebuilding widgets',
@@ -124,7 +178,7 @@ class CorrelationEngine {
       final navEvents = events.where(
         (e) => e.metadata?['screen'] != null || e.module == 'navigation',
       );
-      return hasMemoryWarning && navEvents.length >= 2;
+      return hasMemoryWarning && navEvents.length >= minNavEventsForCorrelation;
     },
     synthesize: (events) {
       final memEvent = events.firstWhere(
@@ -135,7 +189,8 @@ class CorrelationEngine {
         module: 'correlation',
         severity: Severity.warning,
         title: 'Memory Grows During Navigation',
-        description: 'Memory usage increases as you navigate between screens. '
+        description:
+            'Memory usage increases as you navigate between screens. '
             'This suggests screen widgets or controllers are not being disposed properly.',
         suggestions: [
           'Check that all controllers are disposed in dispose() method',
@@ -160,24 +215,32 @@ class CorrelationEngine {
         (e) => e.module == 'network' && e.severity.isAtLeast(Severity.warning),
       );
       final hasJank = events.any(
-        (e) => e.module == 'performance' && e.severity.isAtLeast(Severity.warning),
+        (e) =>
+            e.module == 'performance' && e.severity.isAtLeast(Severity.warning),
       );
       if (!hasSlowNetwork || !hasJank) return false;
 
       // Check temporal proximity (slow network before jank)
       final networkTime = events
-          .where((e) => e.module == 'network' && e.severity.isAtLeast(Severity.warning))
+          .where(
+            (e) =>
+                e.module == 'network' && e.severity.isAtLeast(Severity.warning),
+          )
           .map((e) => e.timestamp)
           .firstOrNull;
       final jankTime = events
-          .where((e) => e.module == 'performance' && e.severity.isAtLeast(Severity.warning))
+          .where(
+            (e) =>
+                e.module == 'performance' &&
+                e.severity.isAtLeast(Severity.warning),
+          )
           .map((e) => e.timestamp)
           .firstOrNull;
 
       if (networkTime == null || jankTime == null) return false;
-      // Jank must occur AFTER network response, within 2 seconds
+      // Jank must occur AFTER network response, within the correlation window
       final diffMs = jankTime.difference(networkTime).inMilliseconds;
-      return diffMs >= 0 && diffMs < 2000;
+      return diffMs >= 0 && diffMs < networkJankWindowMs;
     },
     synthesize: (events) {
       final networkEvent = events.firstWhere(
@@ -189,17 +252,15 @@ class CorrelationEngine {
         module: 'correlation',
         severity: Severity.warning,
         title: 'Network Response Causing Jank',
-        description: 'A slow network response from $url was followed by UI jank. '
+        description:
+            'A slow network response from $url was followed by UI jank. '
             'The response may be parsed on the main thread, blocking rendering.',
         suggestions: [
           'Use compute() or Isolate.run() to parse large JSON responses off the main thread',
           'Consider streaming/chunked response parsing for large payloads',
           'Add a loading indicator while processing the response',
         ],
-        metadata: {
-          'rule': 'slow_network_jank',
-          'url': url,
-        },
+        metadata: {'rule': 'slow_network_jank', 'url': url},
       );
     },
   );
@@ -209,21 +270,26 @@ class CorrelationEngine {
     id: 'repeated_auth_failures',
     name: 'Repeated Auth Failures',
     matches: (events) {
-      final authFailures = events.where(
-        (e) => e.module == 'network' && e.metadata?['status_code'] == 401,
-      ).length;
-      return authFailures >= 3;
+      final authFailures = events
+          .where(
+            (e) => e.module == 'network' && e.metadata?['status_code'] == 401,
+          )
+          .length;
+      return authFailures >= authFailureThreshold;
     },
     synthesize: (events) {
       final count = events
-          .where((e) => e.module == 'network' && e.metadata?['status_code'] == 401)
+          .where(
+            (e) => e.module == 'network' && e.metadata?['status_code'] == 401,
+          )
           .length;
 
       return DevBuddyEvent(
         module: 'correlation',
         severity: Severity.critical,
         title: 'Token Refresh Mechanism Broken',
-        description: '$count consecutive 401 Unauthorized responses detected. '
+        description:
+            '$count consecutive 401 Unauthorized responses detected. '
             'The authentication token refresh is likely failing silently.',
         suggestions: [
           'Check if the refresh token has expired',
@@ -247,7 +313,7 @@ class CorrelationEngine {
       final hasLargeResponse = events.any((e) {
         if (e.module != 'network') return false;
         final size = e.metadata?['response_size'];
-        return size is int && size > 500 * 1024; // > 500KB
+        return size is int && size > largeResponseThresholdBytes; // > 500KB
       });
       return hasMemoryWarning && hasLargeResponse;
     },
@@ -257,13 +323,16 @@ class CorrelationEngine {
         return e.module == 'network' && size is int && size > 500 * 1024;
       });
       final url = largeResponse.metadata?['url'] ?? 'unknown';
-      final sizeMb = ((largeResponse.metadata?['response_size'] ?? 0) / 1024 / 1024).toStringAsFixed(1);
+      final sizeMb =
+          ((largeResponse.metadata?['response_size'] ?? 0) / 1024 / 1024)
+              .toStringAsFixed(1);
 
       return DevBuddyEvent(
         module: 'correlation',
         severity: Severity.warning,
         title: 'Large Resource Causing Memory Spike',
-        description: 'A ${sizeMb}MB response from $url is causing a memory spike. '
+        description:
+            'A ${sizeMb}MB response from $url is causing a memory spike. '
             'Large resources should be streamed or cached efficiently.',
         suggestions: [
           'For images: use cacheWidth/cacheHeight to limit decoded size',

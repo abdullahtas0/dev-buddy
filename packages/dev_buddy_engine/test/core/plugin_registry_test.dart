@@ -94,8 +94,7 @@ void main() {
 
       final all = registry.all;
       expect(all, hasLength(2));
-      expect(() => (all as List).add(FakePlugin('c')),
-          throwsUnsupportedError);
+      expect(() => (all as List).add(FakePlugin('c')), throwsUnsupportedError);
     });
   });
 

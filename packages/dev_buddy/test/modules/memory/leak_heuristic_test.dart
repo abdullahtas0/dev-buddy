@@ -48,8 +48,9 @@ void main() {
       final result = heuristic.evaluate(sampler);
       expect(result, isNotNull);
       expect(
-        result!.suggestions.any((s) =>
-            s.contains('Controller') || s.contains('dispose')),
+        result!.suggestions.any(
+          (s) => s.contains('Controller') || s.contains('dispose'),
+        ),
         isTrue,
       );
     });

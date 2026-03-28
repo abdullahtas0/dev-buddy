@@ -21,6 +21,10 @@ pubspec.lock
 coverage/
 *.lcov
 
+# Environment / Secrets
+.env
+.env.*
+
 # OS
 .DS_Store
 Thumbs.db

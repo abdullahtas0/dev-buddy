@@ -34,13 +34,15 @@ class _FakeModule extends DevBuddyModule {
   }
 
   void emitFakeEvent(Severity severity) {
-    _onEvent(DevBuddyEvent(
-      module: id,
-      severity: severity,
-      title: 'Fake event',
-      description: 'Test',
-      suggestions: [],
-    ));
+    _onEvent(
+      DevBuddyEvent(
+        module: id,
+        severity: severity,
+        title: 'Fake event',
+        description: 'Test',
+        suggestions: [],
+      ),
+    );
   }
 }
 

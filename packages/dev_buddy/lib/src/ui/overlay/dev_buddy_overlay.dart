@@ -97,10 +97,7 @@ class _DevBuddyOverlayImplState extends State<DevBuddyOverlayImpl> {
               onTap: _togglePanel,
             ),
             if (_panelOpen)
-              DevBuddyPanel(
-                controller: _controller,
-                onClose: _togglePanel,
-              ),
+              DevBuddyPanel(controller: _controller, onClose: _togglePanel),
           ],
         ),
       ),

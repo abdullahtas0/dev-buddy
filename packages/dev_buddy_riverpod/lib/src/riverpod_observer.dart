@@ -20,9 +20,14 @@ class DevBuddyRiverpodObserver extends ProviderObserver {
   /// If null, uses `jsonEncode` with `toString()` fallback.
   final String Function(Object? value)? serializer;
 
+  /// Maximum length for diff strings. Prevents StateStore budget bloat
+  /// from large state objects. Default: 1024 characters.
+  final int maxDiffLength;
+
   DevBuddyRiverpodObserver({
     required StateStore stateStore,
     this.serializer,
+    this.maxDiffLength = 1024,
   }) : _stateStore = stateStore;
 
   @override
@@ -91,14 +96,17 @@ class DevBuddyRiverpodObserver extends ProviderObserver {
 
   String? _computeDiff(Object? previous, Object? current) {
     if (previous == null) return null;
-    // Simple diff: record both values as JSON
     try {
-      return jsonEncode({
-        'from': previous.toString(),
-        'to': current.toString(),
-      });
+      final fromStr = _truncate(previous.toString());
+      final toStr = _truncate(current.toString());
+      return jsonEncode({'from': fromStr, 'to': toStr});
     } catch (_) {
       return '{"from": "${previous.runtimeType}", "to": "${current.runtimeType}"}';
     }
+  }
+
+  String _truncate(String value) {
+    if (value.length <= maxDiffLength) return value;
+    return '${value.substring(0, maxDiffLength)}... [TRUNCATED]';
   }
 }

@@ -49,11 +49,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             children: [
               Icon(Icons.check_circle, size: 80, color: Colors.green.shade400),
               const SizedBox(height: 16),
-              const Text('Order Placed Successfully!',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700)),
+              const Text(
+                'Order Placed Successfully!',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
+              ),
               const SizedBox(height: 8),
-              const Text('Thank you for your purchase.',
-                  style: TextStyle(color: Colors.grey)),
+              const Text(
+                'Thank you for your purchase.',
+                style: TextStyle(color: Colors.grey),
+              ),
               const SizedBox(height: 32),
               OutlinedButton(
                 onPressed: () => Navigator.popUntil(context, (r) => r.isFirst),
@@ -74,26 +78,39 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Order Summary',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
+            const Text(
+              'Order Summary',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+            ),
             const SizedBox(height: 16),
-            ...cart.items.map((item) => Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Row(
-                    children: [
-                      Expanded(child: Text('${item.product.name} x${item.quantity}')),
-                      Text('\$${item.total.toStringAsFixed(2)}'),
-                    ],
-                  ),
-                )),
+            ...cart.items.map(
+              (item) => Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text('${item.product.name} x${item.quantity}'),
+                    ),
+                    Text('\$${item.total.toStringAsFixed(2)}'),
+                  ],
+                ),
+              ),
+            ),
             const Divider(height: 24),
             Row(
               children: [
-                const Text('Total',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+                const Text(
+                  'Total',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                ),
                 const Spacer(),
-                Text('\$${cart.totalPrice.toStringAsFixed(2)}',
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+                Text(
+                  '\$${cart.totalPrice.toStringAsFixed(2)}',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
               ],
             ),
             const Spacer(),
@@ -104,8 +121,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 onPressed: _loading ? null : _placeOrder,
                 child: _loading
                     ? const SizedBox(
-                        width: 24, height: 24,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
                       )
                     : const Text('Place Order', style: TextStyle(fontSize: 16)),
               ),

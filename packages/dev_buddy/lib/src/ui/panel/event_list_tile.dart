@@ -35,16 +35,10 @@ class EventListTile extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                event.severity.emoji,
-                style: const TextStyle(fontSize: 16),
-              ),
+              Text(event.severity.emoji, style: const TextStyle(fontSize: 16)),
               const SizedBox(width: 8),
               Expanded(
-                child: Text(
-                  event.title,
-                  style: DevBuddyTheme.eventTitle,
-                ),
+                child: Text(event.title, style: DevBuddyTheme.eventTitle),
               ),
             ],
           ),

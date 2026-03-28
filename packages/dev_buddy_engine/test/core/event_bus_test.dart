@@ -5,14 +5,13 @@ DevBuddyEvent _event({
   String module = 'test',
   Severity severity = Severity.info,
   String title = 'Test Event',
-}) =>
-    DevBuddyEvent(
-      module: module,
-      severity: severity,
-      title: title,
-      description: 'desc',
-      suggestions: ['fix it'],
-    );
+}) => DevBuddyEvent(
+  module: module,
+  severity: severity,
+  title: title,
+  description: 'desc',
+  suggestions: ['fix it'],
+);
 
 void main() {
   group('EventBus', () {

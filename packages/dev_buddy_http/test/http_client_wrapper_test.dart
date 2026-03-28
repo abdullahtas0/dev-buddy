@@ -2,9 +2,9 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:dev_buddy/dev_buddy.dart';
+import 'package:dev_buddy_engine/dev_buddy_engine.dart';
 import 'package:dev_buddy_http/dev_buddy_http.dart';
-import 'package:flutter_test/flutter_test.dart';
+import 'package:test/test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart' as http_testing;
 
@@ -193,9 +193,7 @@ void main() {
 
     test('close delegates to inner client', () async {
       bool closeCalled = false;
-      final inner = _CloseTrackingClient(
-        onClose: () => closeCalled = true,
-      );
+      final inner = _CloseTrackingClient(onClose: () => closeCalled = true);
       final client = DevBuddyHttpClient(
         inner: inner,
         onEvent: capturedEvents.add,

@@ -27,10 +27,7 @@ class _ModuleTabViewState extends State<ModuleTabView>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(
-      length: _modules.length,
-      vsync: this,
-    );
+    _tabController = TabController(length: _modules.length, vsync: this);
   }
 
   @override
@@ -40,10 +37,7 @@ class _ModuleTabViewState extends State<ModuleTabView>
         oldWidget.controller.modules.length !=
             widget.controller.modules.length) {
       _tabController.dispose();
-      _tabController = TabController(
-        length: _modules.length,
-        vsync: this,
-      );
+      _tabController = TabController(length: _modules.length, vsync: this);
     }
   }
 
@@ -104,8 +98,9 @@ class _ModuleTabViewState extends State<ModuleTabView>
               return TabBarView(
                 controller: _tabController,
                 children: _modules.map((module) {
-                  final filteredEvents =
-                      widget.controller.eventsForModule(module.id);
+                  final filteredEvents = widget.controller.eventsForModule(
+                    module.id,
+                  );
                   return module.buildTab(context, filteredEvents);
                 }).toList(),
               );

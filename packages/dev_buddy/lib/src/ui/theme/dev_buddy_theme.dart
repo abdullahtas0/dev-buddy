@@ -11,8 +11,10 @@ abstract final class DevBuddyTheme {
   static const double panelBorderRadius = 20.0;
   static const double panelMaxHeight = 0.6; // 60% of screen
 
-  static const EdgeInsets pillPadding =
-      EdgeInsets.symmetric(horizontal: 12, vertical: 6);
+  static const EdgeInsets pillPadding = EdgeInsets.symmetric(
+    horizontal: 12,
+    vertical: 6,
+  );
 
   static const TextStyle pillText = TextStyle(
     fontSize: 12,
@@ -56,10 +58,10 @@ abstract final class DevBuddyTheme {
   );
 
   static Color colorForSeverity(Severity severity) => switch (severity) {
-        Severity.info => const Color(0xFF4CAF50),     // Green
-        Severity.warning => const Color(0xFFFFA726),   // Orange
-        Severity.critical => const Color(0xFFEF5350),  // Red
-      };
+    Severity.info => const Color(0xFF4CAF50), // Green
+    Severity.warning => const Color(0xFFFFA726), // Orange
+    Severity.critical => const Color(0xFFEF5350), // Red
+  };
 
   // Light mode colors
   static const Color panelBackground = Color(0xFFF8F9FA);
@@ -82,8 +84,8 @@ abstract final class DevBuddyTheme {
   /// Returns the appropriate header button background for the given [brightness].
   static Color headerButtonBackgroundFor(Brightness brightness) =>
       brightness == Brightness.dark
-          ? headerButtonBackgroundDark
-          : headerButtonBackground;
+      ? headerButtonBackgroundDark
+      : headerButtonBackground;
 
   /// Returns the appropriate header button text color for the given [brightness].
   static Color headerButtonTextFor(Brightness brightness) =>

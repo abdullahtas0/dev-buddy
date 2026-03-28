@@ -17,12 +17,10 @@ class DevBuddyController {
   final List<DevBuddyModule> _flutterModules;
 
   /// All collected diagnostic events, newest first.
-  final ValueNotifier<List<DevBuddyEvent>> events =
-      ValueNotifier(const []);
+  final ValueNotifier<List<DevBuddyEvent>> events = ValueNotifier(const []);
 
   /// The highest severity among recent events.
-  final ValueNotifier<Severity> overallSeverity =
-      ValueNotifier(Severity.info);
+  final ValueNotifier<Severity> overallSeverity = ValueNotifier(Severity.info);
 
   /// Count of events dropped due to history limit.
   final ValueNotifier<int> droppedEventCount = ValueNotifier(0);
@@ -30,11 +28,11 @@ class DevBuddyController {
   DevBuddyController({
     required List<DevBuddyModule> modules,
     DevBuddyConfig config = const DevBuddyConfig(),
-  })  : _flutterModules = List.unmodifiable(modules),
-        _engine = DevBuddyEngine(
-          modules: modules, // DevBuddyModule extends DiagnosticModule
-          config: config,
-        ) {
+  }) : _flutterModules = List.unmodifiable(modules),
+       _engine = DevBuddyEngine(
+         modules: modules, // DevBuddyModule extends DiagnosticModule
+         config: config,
+       ) {
     // Bridge: engine state changes → ValueNotifier updates
     _engine.onStateChanged = _syncState;
   }

@@ -24,11 +24,7 @@ class _TestModule extends DevBuddyModule {
 
   late void Function(DevBuddyEvent) _onEvent;
 
-  _TestModule({
-    required this.id,
-    required this.name,
-    required this.icon,
-  });
+  _TestModule({required this.id, required this.name, required this.icon});
 
   @override
   void initialize({
@@ -46,10 +42,7 @@ class _TestModule extends DevBuddyModule {
   @override
   Widget buildTab(BuildContext context, List<DevBuddyEvent> events) {
     if (events.isEmpty) {
-      return Center(
-        key: Key('empty_$id'),
-        child: Text('No events for $name'),
-      );
+      return Center(key: Key('empty_$id'), child: Text('No events for $name'));
     }
     return ListView(
       key: Key('list_$id'),
@@ -79,9 +72,7 @@ DevBuddyEvent _makeEvent({
 /// Positioned widgets and Material ancestors resolve properly.
 Widget _wrap(Widget child) {
   return MaterialApp(
-    home: Scaffold(
-      body: Stack(children: [child]),
-    ),
+    home: Scaffold(body: Stack(children: [child])),
   );
 }
 
@@ -106,9 +97,7 @@ void main() {
         name: 'Network',
         icon: Icons.wifi,
       );
-      controller = DevBuddyController(
-        modules: [perfModule, networkModule],
-      );
+      controller = DevBuddyController(modules: [perfModule, networkModule]);
       controller.initialize();
     });
 
@@ -117,48 +106,36 @@ void main() {
     });
 
     testWidgets('renders header with DevBuddy title', (tester) async {
-      await tester.pumpWidget(_wrap(
-        DevBuddyPanel(
-          controller: controller,
-          onClose: () {},
-        ),
-      ));
+      await tester.pumpWidget(
+        _wrap(DevBuddyPanel(controller: controller, onClose: () {})),
+      );
       await tester.pumpAndSettle();
 
       expect(find.text('DevBuddy'), findsOneWidget);
     });
 
     testWidgets('renders Export button', (tester) async {
-      await tester.pumpWidget(_wrap(
-        DevBuddyPanel(
-          controller: controller,
-          onClose: () {},
-        ),
-      ));
+      await tester.pumpWidget(
+        _wrap(DevBuddyPanel(controller: controller, onClose: () {})),
+      );
       await tester.pumpAndSettle();
 
       expect(find.text('Export'), findsOneWidget);
     });
 
     testWidgets('renders Clear All button', (tester) async {
-      await tester.pumpWidget(_wrap(
-        DevBuddyPanel(
-          controller: controller,
-          onClose: () {},
-        ),
-      ));
+      await tester.pumpWidget(
+        _wrap(DevBuddyPanel(controller: controller, onClose: () {})),
+      );
       await tester.pumpAndSettle();
 
       expect(find.text('Clear All'), findsOneWidget);
     });
 
     testWidgets('renders close button', (tester) async {
-      await tester.pumpWidget(_wrap(
-        DevBuddyPanel(
-          controller: controller,
-          onClose: () {},
-        ),
-      ));
+      await tester.pumpWidget(
+        _wrap(DevBuddyPanel(controller: controller, onClose: () {})),
+      );
       await tester.pumpAndSettle();
 
       expect(find.byIcon(Icons.close), findsOneWidget);
@@ -166,12 +143,11 @@ void main() {
 
     testWidgets('close button triggers onClose callback', (tester) async {
       var closed = false;
-      await tester.pumpWidget(_wrap(
-        DevBuddyPanel(
-          controller: controller,
-          onClose: () => closed = true,
+      await tester.pumpWidget(
+        _wrap(
+          DevBuddyPanel(controller: controller, onClose: () => closed = true),
         ),
-      ));
+      );
       await tester.pumpAndSettle();
 
       await tester.tap(find.byIcon(Icons.close));
@@ -180,13 +156,15 @@ void main() {
 
     testWidgets('Export button triggers onExport callback', (tester) async {
       var exported = false;
-      await tester.pumpWidget(_wrap(
-        DevBuddyPanel(
-          controller: controller,
-          onClose: () {},
-          onExport: () => exported = true,
+      await tester.pumpWidget(
+        _wrap(
+          DevBuddyPanel(
+            controller: controller,
+            onClose: () {},
+            onExport: () => exported = true,
+          ),
         ),
-      ));
+      );
       await tester.pumpAndSettle();
 
       await tester.tap(find.text('Export'));
@@ -198,12 +176,9 @@ void main() {
       perfModule.emit(_makeEvent(module: 'performance', title: 'Jank'));
       controller.flushForTesting();
 
-      await tester.pumpWidget(_wrap(
-        DevBuddyPanel(
-          controller: controller,
-          onClose: () {},
-        ),
-      ));
+      await tester.pumpWidget(
+        _wrap(DevBuddyPanel(controller: controller, onClose: () {})),
+      );
       await tester.pumpAndSettle();
 
       // Verify event is visible
@@ -218,12 +193,9 @@ void main() {
     });
 
     testWidgets('has slide-up animation', (tester) async {
-      await tester.pumpWidget(_wrap(
-        DevBuddyPanel(
-          controller: controller,
-          onClose: () {},
-        ),
-      ));
+      await tester.pumpWidget(
+        _wrap(DevBuddyPanel(controller: controller, onClose: () {})),
+      );
 
       // Should find SlideTransition as a descendant of DevBuddyPanel
       expect(
@@ -251,18 +223,13 @@ void main() {
     });
 
     testWidgets('renders handle bar', (tester) async {
-      await tester.pumpWidget(_wrap(
-        DevBuddyPanel(
-          controller: controller,
-          onClose: () {},
-        ),
-      ));
+      await tester.pumpWidget(
+        _wrap(DevBuddyPanel(controller: controller, onClose: () {})),
+      );
       await tester.pumpAndSettle();
 
       // Handle bar is a small 36x4 container
-      final handleBars = tester.widgetList<Container>(
-        find.byType(Container),
-      );
+      final handleBars = tester.widgetList<Container>(find.byType(Container));
       handleBars.where((c) {
         final constraints = c.constraints;
         return constraints != null &&
@@ -298,9 +265,7 @@ void main() {
     });
 
     testWidgets('renders tab for each module', (tester) async {
-      controller = DevBuddyController(
-        modules: [perfModule, networkModule],
-      );
+      controller = DevBuddyController(modules: [perfModule, networkModule]);
       controller.initialize();
 
       await tester.pumpWidget(
@@ -341,9 +306,7 @@ void main() {
     });
 
     testWidgets('shows module buildTab content', (tester) async {
-      controller = DevBuddyController(
-        modules: [perfModule, networkModule],
-      );
+      controller = DevBuddyController(modules: [perfModule, networkModule]);
       controller.initialize();
 
       await tester.pumpWidget(
@@ -363,9 +326,7 @@ void main() {
     });
 
     testWidgets('switching tabs shows correct module content', (tester) async {
-      controller = DevBuddyController(
-        modules: [perfModule, networkModule],
-      );
+      controller = DevBuddyController(modules: [perfModule, networkModule]);
       controller.initialize();
 
       await tester.pumpWidget(
@@ -388,16 +349,13 @@ void main() {
     });
 
     testWidgets('shows events for the active module tab', (tester) async {
-      controller = DevBuddyController(
-        modules: [perfModule, networkModule],
-      );
+      controller = DevBuddyController(modules: [perfModule, networkModule]);
       controller.initialize();
 
       // Emit a performance event
-      perfModule.emit(_makeEvent(
-        module: 'performance',
-        title: 'Frame jank detected',
-      ));
+      perfModule.emit(
+        _makeEvent(module: 'performance', title: 'Frame jank detected'),
+      );
       controller.flushForTesting();
 
       await tester.pumpWidget(
@@ -428,9 +386,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: SingleChildScrollView(
-              child: EventListTile(event: event),
-            ),
+            body: SingleChildScrollView(child: EventListTile(event: event)),
           ),
         ),
       );
@@ -449,9 +405,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: SingleChildScrollView(
-              child: EventListTile(event: event),
-            ),
+            body: SingleChildScrollView(child: EventListTile(event: event)),
           ),
         ),
       );
@@ -469,9 +423,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: SingleChildScrollView(
-              child: EventListTile(event: event),
-            ),
+            body: SingleChildScrollView(child: EventListTile(event: event)),
           ),
         ),
       );
@@ -492,9 +444,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: SingleChildScrollView(
-              child: EventListTile(event: event),
-            ),
+            body: SingleChildScrollView(child: EventListTile(event: event)),
           ),
         ),
       );
@@ -514,17 +464,13 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: SingleChildScrollView(
-              child: EventListTile(event: event),
-            ),
+            body: SingleChildScrollView(child: EventListTile(event: event)),
           ),
         ),
       );
 
       // Find the outer Container with the border decoration
-      final containers = tester.widgetList<Container>(
-        find.byType(Container),
-      );
+      final containers = tester.widgetList<Container>(find.byType(Container));
 
       final borderContainer = containers.where((c) {
         final decoration = c.decoration;

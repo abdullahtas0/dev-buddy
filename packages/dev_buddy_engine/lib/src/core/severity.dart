@@ -11,10 +11,10 @@ enum Severity {
 
   /// Human-friendly emoji for display.
   String get emoji => switch (this) {
-        Severity.info => 'ℹ️',
-        Severity.warning => '🟡',
-        Severity.critical => '🔴',
-      };
+    Severity.info => 'ℹ️',
+    Severity.warning => '🟡',
+    Severity.critical => '🔴',
+  };
 
   /// Returns the highest severity from a list of severities.
   static Severity highest(Iterable<Severity> severities) {

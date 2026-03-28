@@ -14,13 +14,12 @@ class McpTools {
   final DevBuddyEngine engine;
   final DataSanitizer sanitizer;
 
-  McpTools({
-    required this.engine,
-    DataSanitizer? sanitizer,
-  }) : sanitizer = sanitizer ?? const DataSanitizer();
+  McpTools({required this.engine, DataSanitizer? sanitizer})
+    : sanitizer = sanitizer ?? const DataSanitizer();
 
   /// Registry of tool name → handler.
-  Map<String, Map<String, dynamic> Function(Map<String, dynamic>)> get tools => {
+  Map<String, Map<String, dynamic> Function(Map<String, dynamic>)> get tools =>
+      {
         'dev_buddy/diagnostics': diagnostics,
         'dev_buddy/suggest': suggest,
         'dev_buddy/search_events': searchEvents,
@@ -34,81 +33,131 @@ class McpTools {
 
   /// Tool definitions for MCP registration (name, description, parameters).
   List<Map<String, dynamic>> get toolDefinitions => [
-        {
-          'name': 'dev_buddy/diagnostics',
-          'description': 'Get current diagnostic snapshot: FPS, memory, severity, top issues',
-          'inputSchema': {'type': 'object', 'properties': {}},
-        },
-        {
-          'name': 'dev_buddy/suggest',
-          'description': 'Get AI-friendly compound suggestions based on correlated signals',
-          'inputSchema': {'type': 'object', 'properties': {}},
-        },
-        {
-          'name': 'dev_buddy/search_events',
-          'description': 'Search diagnostic events by query, module, severity, or time range',
-          'inputSchema': {
-            'type': 'object',
-            'properties': {
-              'query': {'type': 'string', 'description': 'Free text search in event titles/descriptions'},
-              'module': {'type': 'string', 'description': 'Filter by module id (performance, network, errors, memory, rebuilds)'},
-              'severity': {'type': 'string', 'description': 'Minimum severity: info, warning, critical'},
-              'limit': {'type': 'integer', 'description': 'Max results (default: 5)'},
-            },
+    {
+      'name': 'dev_buddy/diagnostics',
+      'description':
+          'Get current diagnostic snapshot: FPS, memory, severity, top issues',
+      'inputSchema': {'type': 'object', 'properties': {}},
+    },
+    {
+      'name': 'dev_buddy/suggest',
+      'description':
+          'Get AI-friendly compound suggestions based on correlated signals',
+      'inputSchema': {'type': 'object', 'properties': {}},
+    },
+    {
+      'name': 'dev_buddy/search_events',
+      'description':
+          'Search diagnostic events by query, module, severity, or time range',
+      'inputSchema': {
+        'type': 'object',
+        'properties': {
+          'query': {
+            'type': 'string',
+            'description': 'Free text search in event titles/descriptions',
+          },
+          'module': {
+            'type': 'string',
+            'description':
+                'Filter by module id (performance, network, errors, memory, rebuilds)',
+          },
+          'severity': {
+            'type': 'string',
+            'description': 'Minimum severity: info, warning, critical',
+          },
+          'limit': {
+            'type': 'integer',
+            'description': 'Max results (default: 5)',
+          },
+          'offset': {
+            'type': 'integer',
+            'description': 'Skip first N results for pagination (default: 0)',
           },
         },
-        {
-          'name': 'dev_buddy/search_network',
-          'description': 'Search network requests by URL pattern, status code, or duration',
-          'inputSchema': {
-            'type': 'object',
-            'properties': {
-              'urlPattern': {'type': 'string', 'description': 'URL substring to match'},
-              'statusCode': {'type': 'integer', 'description': 'Filter by status code'},
-              'minDurationMs': {'type': 'integer', 'description': 'Minimum duration in ms'},
-              'limit': {'type': 'integer', 'description': 'Max results (default: 5)'},
-            },
+      },
+    },
+    {
+      'name': 'dev_buddy/search_network',
+      'description':
+          'Search network requests by URL pattern, status code, or duration',
+      'inputSchema': {
+        'type': 'object',
+        'properties': {
+          'urlPattern': {
+            'type': 'string',
+            'description': 'URL substring to match',
+          },
+          'statusCode': {
+            'type': 'integer',
+            'description': 'Filter by status code',
+          },
+          'minDurationMs': {
+            'type': 'integer',
+            'description': 'Minimum duration in ms',
+          },
+          'limit': {
+            'type': 'integer',
+            'description': 'Max results (default: 5)',
+          },
+          'offset': {
+            'type': 'integer',
+            'description': 'Skip first N results for pagination (default: 0)',
           },
         },
-        {
-          'name': 'dev_buddy/search_state',
-          'description': 'Search state change history by source provider or action',
-          'inputSchema': {
-            'type': 'object',
-            'properties': {
-              'source': {'type': 'string', 'description': 'State source (e.g., riverpod:counterProvider)'},
-              'action': {'type': 'string', 'description': 'Action/event name'},
-              'limit': {'type': 'integer', 'description': 'Max results (default: 10)'},
-            },
+      },
+    },
+    {
+      'name': 'dev_buddy/search_state',
+      'description': 'Search state change history by source provider or action',
+      'inputSchema': {
+        'type': 'object',
+        'properties': {
+          'source': {
+            'type': 'string',
+            'description': 'State source (e.g., riverpod:counterProvider)',
+          },
+          'action': {'type': 'string', 'description': 'Action/event name'},
+          'limit': {
+            'type': 'integer',
+            'description': 'Max results (default: 10)',
+          },
+          'offset': {
+            'type': 'integer',
+            'description': 'Skip first N results for pagination (default: 0)',
           },
         },
-        {
-          'name': 'dev_buddy/detail',
-          'description': 'Get full details of a specific event by index',
-          'inputSchema': {
-            'type': 'object',
-            'properties': {
-              'index': {'type': 'integer', 'description': 'Event index in history (0 = newest)'},
-            },
-            'required': ['index'],
+      },
+    },
+    {
+      'name': 'dev_buddy/detail',
+      'description': 'Get full details of a specific event by index',
+      'inputSchema': {
+        'type': 'object',
+        'properties': {
+          'index': {
+            'type': 'integer',
+            'description': 'Event index in history (0 = newest)',
           },
         },
-        {
-          'name': 'dev_buddy/performance',
-          'description': 'Get frame timing and jank analysis summary',
-          'inputSchema': {'type': 'object', 'properties': {}},
-        },
-        {
-          'name': 'dev_buddy/memory',
-          'description': 'Get memory usage trend and leak heuristic result',
-          'inputSchema': {'type': 'object', 'properties': {}},
-        },
-        {
-          'name': 'dev_buddy/errors',
-          'description': 'Get error catalog matches with fix suggestions',
-          'inputSchema': {'type': 'object', 'properties': {}},
-        },
-      ];
+        'required': ['index'],
+      },
+    },
+    {
+      'name': 'dev_buddy/performance',
+      'description': 'Get frame timing and jank analysis summary',
+      'inputSchema': {'type': 'object', 'properties': {}},
+    },
+    {
+      'name': 'dev_buddy/memory',
+      'description': 'Get memory usage trend and leak heuristic result',
+      'inputSchema': {'type': 'object', 'properties': {}},
+    },
+    {
+      'name': 'dev_buddy/errors',
+      'description': 'Get error catalog matches with fix suggestions',
+      'inputSchema': {'type': 'object', 'properties': {}},
+    },
+  ];
 
   // === Tool Handlers ===
 
@@ -119,11 +168,13 @@ class McpTools {
       'overall_severity': snap['overall_severity'],
       'event_count': snap['event_count'],
       'top_issues': (engine.eventBus.history.take(3).toList())
-          .map((e) => {
-                'module': e.module,
-                'severity': e.severity.name,
-                'title': sanitizer.sanitizeValue(e.title),
-              })
+          .map(
+            (e) => {
+              'module': e.module,
+              'severity': e.severity.name,
+              'title': sanitizer.sanitizeValue(e.title),
+            },
+          )
           .toList(),
       'state_store': snap['state_store'],
     };
@@ -147,12 +198,13 @@ class McpTools {
     return {'suggestions': suggestions.take(5).toList()};
   }
 
-  /// Search events with filters.
+  /// Search events with filters and pagination.
   Map<String, dynamic> searchEvents(Map<String, dynamic> params) {
     final query = params['query'] as String?;
     final module = params['module'] as String?;
     final severityStr = params['severity'] as String?;
     final limit = (params['limit'] as int?) ?? 5;
+    final offset = (params['offset'] as int?) ?? 0;
 
     var results = engine.eventBus.history.toList();
 
@@ -169,36 +221,49 @@ class McpTools {
     if (query != null && query.isNotEmpty) {
       final q = query.toLowerCase();
       results = results
-          .where((e) =>
-              e.title.toLowerCase().contains(q) ||
-              e.description.toLowerCase().contains(q))
+          .where(
+            (e) =>
+                e.title.toLowerCase().contains(q) ||
+                e.description.toLowerCase().contains(q),
+          )
           .toList();
     }
 
     return {
       'total': results.length,
-      'results': results.take(limit).map((e) => {
-            'module': e.module,
-            'severity': e.severity.name,
-            'title': sanitizer.sanitizeValue(e.title),
-            'description': sanitizer.sanitizeBody(e.description),
-            'timestamp': e.timestamp.toIso8601String(),
-          }).toList(),
+      'offset': offset,
+      'limit': limit,
+      'results': results
+          .skip(offset)
+          .take(limit)
+          .map(
+            (e) => {
+              'module': e.module,
+              'severity': e.severity.name,
+              'title': sanitizer.sanitizeValue(e.title),
+              'description': sanitizer.sanitizeBody(e.description),
+              'timestamp': e.timestamp.toIso8601String(),
+            },
+          )
+          .toList(),
     };
   }
 
-  /// Search network requests.
+  /// Search network requests with pagination.
   Map<String, dynamic> searchNetwork(Map<String, dynamic> params) {
     final urlPattern = params['urlPattern'] as String?;
     final statusCode = params['statusCode'] as int?;
     final minDurationMs = params['minDurationMs'] as int?;
     final limit = (params['limit'] as int?) ?? 5;
+    final offset = (params['offset'] as int?) ?? 0;
 
     var results = engine.eventBus.historyFor('network');
 
     if (urlPattern != null) {
       results = results
-          .where((e) => (e.metadata?['url'] ?? '').toString().contains(urlPattern))
+          .where(
+            (e) => (e.metadata?['url'] ?? '').toString().contains(urlPattern),
+          )
           .toList();
     }
     if (statusCode != null) {
@@ -214,19 +279,28 @@ class McpTools {
 
     return {
       'total': results.length,
-      'results': results.take(limit).map((e) => {
-            'title': sanitizer.sanitizeValue(e.title),
-            'severity': e.severity.name,
-            'timestamp': e.timestamp.toIso8601String(),
-          }).toList(),
+      'offset': offset,
+      'limit': limit,
+      'results': results
+          .skip(offset)
+          .take(limit)
+          .map(
+            (e) => {
+              'title': sanitizer.sanitizeValue(e.title),
+              'severity': e.severity.name,
+              'timestamp': e.timestamp.toIso8601String(),
+            },
+          )
+          .toList(),
     };
   }
 
-  /// Search state history.
+  /// Search state history with pagination.
   Map<String, dynamic> searchState(Map<String, dynamic> params) {
     final source = params['source'] as String?;
     final action = params['action'] as String?;
     final limit = (params['limit'] as int?) ?? 10;
+    final offset = (params['offset'] as int?) ?? 0;
 
     var results = engine.stateStore.history;
 
@@ -239,15 +313,23 @@ class McpTools {
 
     return {
       'total': results.length,
-      'results': results.take(limit).map((s) => {
-            'version': s.version,
-            'source': s.source,
-            'action': s.action,
-            'timestamp': s.timestamp.toIso8601String(),
-            'is_anchor': s.isAnchor,
-            if (s.serializedDiff != null)
-              'diff': sanitizer.sanitizeBody(s.serializedDiff!),
-          }).toList(),
+      'offset': offset,
+      'limit': limit,
+      'results': results
+          .skip(offset)
+          .take(limit)
+          .map(
+            (s) => {
+              'version': s.version,
+              'source': s.source,
+              'action': s.action,
+              'timestamp': s.timestamp.toIso8601String(),
+              'is_anchor': s.isAnchor,
+              if (s.serializedDiff != null)
+                'diff': sanitizer.sanitizeBody(s.serializedDiff!),
+            },
+          )
+          .toList(),
     };
   }
 
@@ -257,7 +339,9 @@ class McpTools {
     final history = engine.eventBus.history;
 
     if (index < 0 || index >= history.length) {
-      return {'error': 'Index out of range. History has ${history.length} events.'};
+      return {
+        'error': 'Index out of range. History has ${history.length} events.',
+      };
     }
 
     final event = history[index];
@@ -268,7 +352,8 @@ class McpTools {
       'description': sanitizer.sanitizeBody(event.description),
       'suggestions': event.suggestions,
       'timestamp': event.timestamp.toIso8601String(),
-      if (event.metadata != null) 'metadata': _sanitizeMetadata(event.metadata!),
+      if (event.metadata != null)
+        'metadata': _sanitizeMetadata(event.metadata!),
     };
   }
 
@@ -277,16 +362,23 @@ class McpTools {
     final perfEvents = engine.eventBus.historyFor('performance');
     return {
       'jank_event_count': perfEvents.length,
-      'recent_jank': perfEvents.take(3).map((e) => {
-            'title': e.title,
-            'severity': e.severity.name,
-            'frame_duration_ms': e.metadata?['frame_duration_ms'],
-            'consecutive_janks': e.metadata?['consecutive_janks'],
-          }).toList(),
-      'module_state': engine.modules
-          .where((m) => m.id == 'performance')
-          .map((m) => m.currentState)
-          .firstOrNull ?? {},
+      'recent_jank': perfEvents
+          .take(3)
+          .map(
+            (e) => {
+              'title': e.title,
+              'severity': e.severity.name,
+              'frame_duration_ms': e.metadata?['frame_duration_ms'],
+              'consecutive_janks': e.metadata?['consecutive_janks'],
+            },
+          )
+          .toList(),
+      'module_state':
+          engine.modules
+              .where((m) => m.id == 'performance')
+              .map((m) => m.currentState)
+              .firstOrNull ??
+          {},
     };
   }
 
@@ -295,14 +387,16 @@ class McpTools {
     final memEvents = engine.eventBus.historyFor('memory');
     return {
       'warning_count': memEvents.length,
-      'recent_warnings': memEvents.take(3).map((e) => {
-            'title': e.title,
-            'severity': e.severity.name,
-          }).toList(),
-      'module_state': engine.modules
-          .where((m) => m.id == 'memory')
-          .map((m) => m.currentState)
-          .firstOrNull ?? {},
+      'recent_warnings': memEvents
+          .take(3)
+          .map((e) => {'title': e.title, 'severity': e.severity.name})
+          .toList(),
+      'module_state':
+          engine.modules
+              .where((m) => m.id == 'memory')
+              .map((m) => m.currentState)
+              .firstOrNull ??
+          {},
     };
   }
 
@@ -311,11 +405,16 @@ class McpTools {
     final errorEvents = engine.eventBus.historyFor('errors');
     return {
       'error_count': errorEvents.length,
-      'recent_errors': errorEvents.take(5).map((e) => {
-            'title': sanitizer.sanitizeValue(e.title),
-            'severity': e.severity.name,
-            'suggestions': e.suggestions.take(2).toList(),
-          }).toList(),
+      'recent_errors': errorEvents
+          .take(5)
+          .map(
+            (e) => {
+              'title': sanitizer.sanitizeValue(e.title),
+              'severity': e.severity.name,
+              'suggestions': e.suggestions.take(2).toList(),
+            },
+          )
+          .toList(),
     };
   }
 

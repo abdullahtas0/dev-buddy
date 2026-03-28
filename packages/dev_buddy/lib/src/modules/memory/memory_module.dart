@@ -36,7 +36,9 @@ class MemoryModule extends DevBuddyModule {
     required void Function(DevBuddyEvent event) onEvent,
   }) {
     _sampler = MemorySampler(maxSamples: 60);
-    _heuristic = LeakHeuristic(warningThresholdMb: config.memoryWarningThresholdMb);
+    _heuristic = LeakHeuristic(
+      warningThresholdMb: config.memoryWarningThresholdMb,
+    );
     _onEvent = onEvent;
 
     _timer = Timer.periodic(const Duration(seconds: 5), (_) => _sample());
@@ -55,18 +57,20 @@ class MemoryModule extends DevBuddyModule {
 
     final evaluation = _heuristic.evaluate(_sampler);
     if (evaluation != null) {
-      _onEvent(DevBuddyEvent(
-        module: id,
-        severity: evaluation.severity,
-        title: evaluation.title,
-        description: evaluation.description,
-        suggestions: evaluation.suggestions,
-        metadata: {
-          'current_mb': rssMb,
-          'growth_rate': _sampler.growthRate,
-          'sample_count': _sampler.samples.length,
-        },
-      ));
+      _onEvent(
+        DevBuddyEvent(
+          module: id,
+          severity: evaluation.severity,
+          title: evaluation.title,
+          description: evaluation.description,
+          suggestions: evaluation.suggestions,
+          metadata: {
+            'current_mb': rssMb,
+            'growth_rate': _sampler.growthRate,
+            'sample_count': _sampler.samples.length,
+          },
+        ),
+      );
     }
   }
 
@@ -100,9 +104,17 @@ class MemoryModule extends DevBuddyModule {
                     child: ListTile(
                       dense: true,
                       leading: Text(event.severity.emoji),
-                      title: Text(event.title,
-                          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-                      subtitle: Text(event.description, style: const TextStyle(fontSize: 11)),
+                      title: Text(
+                        event.title,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      subtitle: Text(
+                        event.description,
+                        style: const TextStyle(fontSize: 11),
+                      ),
                     ),
                   );
                 },
@@ -112,8 +124,10 @@ class MemoryModule extends DevBuddyModule {
             const Padding(
               padding: EdgeInsets.only(top: 24),
               child: Center(
-                child: Text('Memory usage is healthy',
-                    style: TextStyle(color: Colors.grey)),
+                child: Text(
+                  'Memory usage is healthy',
+                  style: TextStyle(color: Colors.grey),
+                ),
               ),
             ),
         ],

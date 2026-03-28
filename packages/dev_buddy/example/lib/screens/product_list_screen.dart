@@ -67,7 +67,9 @@ class _ProductCard extends StatelessWidget {
             // Image loaded at full resolution — memory issue.
             // DevBuddy's MemoryModule will notice RSS growth.
             ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(12),
+              ),
               child: Image.network(
                 product.imageUrl,
                 height: 140,
@@ -89,7 +91,10 @@ class _ProductCard extends StatelessWidget {
                     product.name,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Row(
@@ -98,7 +103,10 @@ class _ProductCard extends StatelessWidget {
                       const SizedBox(width: 2),
                       Text(
                         '${product.rating.toStringAsFixed(1)} (${product.reviewCount})',
-                        style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Colors.grey.shade600,
+                        ),
                       ),
                     ],
                   ),

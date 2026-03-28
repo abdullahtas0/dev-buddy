@@ -23,15 +23,15 @@ class PerformanceBaseline {
   });
 
   Map<String, dynamic> toJson() => {
-        'screen': screenName,
-        if (buildVersion != null) 'build': buildVersion,
-        'median_fps': medianFps,
-        'p95_frame_ms': p95FrameDurationMs,
-        'median_rebuilds': medianRebuildCount,
-        'median_memory_mb': medianMemoryMb,
-        'recorded_at': recordedAt.toIso8601String(),
-        'samples': sampleCount,
-      };
+    'screen': screenName,
+    if (buildVersion != null) 'build': buildVersion,
+    'median_fps': medianFps,
+    'p95_frame_ms': p95FrameDurationMs,
+    'median_rebuilds': medianRebuildCount,
+    'median_memory_mb': medianMemoryMb,
+    'recorded_at': recordedAt.toIso8601String(),
+    'samples': sampleCount,
+  };
 
   factory PerformanceBaseline.fromJson(Map<String, dynamic> json) =>
       PerformanceBaseline(
@@ -86,28 +86,40 @@ class RegressionDetector {
 
   /// Compare current metrics against baseline.
   /// Returns null if within tolerance, or a [RegressionReport] if degraded.
-  RegressionReport? compare(PerformanceBaseline baseline, PerformanceBaseline current) {
+  RegressionReport? compare(
+    PerformanceBaseline baseline,
+    PerformanceBaseline current,
+  ) {
     final regressions = <String>[];
     final suggestions = <String>[];
 
     // FPS regression
     if (baseline.medianFps > 0) {
-      final fpsDrop = ((baseline.medianFps - current.medianFps) / baseline.medianFps) * 100;
+      final fpsDrop =
+          ((baseline.medianFps - current.medianFps) / baseline.medianFps) * 100;
       if (fpsDrop > fpsTolerancePercent) {
-        regressions.add('FPS dropped ${fpsDrop.toStringAsFixed(1)}% '
-            '(${baseline.medianFps.round()} → ${current.medianFps.round()})');
-        suggestions.add('Check recent code changes for expensive build methods');
+        regressions.add(
+          'FPS dropped ${fpsDrop.toStringAsFixed(1)}% '
+          '(${baseline.medianFps.round()} → ${current.medianFps.round()})',
+        );
+        suggestions.add(
+          'Check recent code changes for expensive build methods',
+        );
       }
     }
 
     // Frame duration regression
     if (baseline.p95FrameDurationMs > 0) {
-      final increase = ((current.p95FrameDurationMs - baseline.p95FrameDurationMs) /
-              baseline.p95FrameDurationMs) * 100;
+      final increase =
+          ((current.p95FrameDurationMs - baseline.p95FrameDurationMs) /
+              baseline.p95FrameDurationMs) *
+          100;
       if (increase > frameDurationTolerancePercent) {
-        regressions.add('P95 frame time increased ${increase.toStringAsFixed(1)}% '
-            '(${baseline.p95FrameDurationMs.toStringAsFixed(1)}ms → '
-            '${current.p95FrameDurationMs.toStringAsFixed(1)}ms)');
+        regressions.add(
+          'P95 frame time increased ${increase.toStringAsFixed(1)}% '
+          '(${baseline.p95FrameDurationMs.toStringAsFixed(1)}ms → '
+          '${current.p95FrameDurationMs.toStringAsFixed(1)}ms)',
+        );
         suggestions.add('Profile the screen to identify slow frames');
       }
     }
@@ -115,8 +127,10 @@ class RegressionDetector {
     // Memory regression
     final memoryIncrease = current.medianMemoryMb - baseline.medianMemoryMb;
     if (memoryIncrease > memoryToleranceMb) {
-      regressions.add('Memory increased ${memoryIncrease}MB '
-          '(${baseline.medianMemoryMb}MB → ${current.medianMemoryMb}MB)');
+      regressions.add(
+        'Memory increased ${memoryIncrease}MB '
+        '(${baseline.medianMemoryMb}MB → ${current.medianMemoryMb}MB)',
+      );
       suggestions.add('Check for memory leaks — objects may not be disposed');
     }
 

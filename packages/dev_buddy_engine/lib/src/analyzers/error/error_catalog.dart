@@ -142,7 +142,9 @@ class ErrorCatalog {
     ),
     // 8. Scaffold.of() called with context that does not contain Scaffold
     ErrorPattern(
-      pattern: RegExp(r'Scaffold\.of\(\) called with a context that does not contain a Scaffold'),
+      pattern: RegExp(
+        r'Scaffold\.of\(\) called with a context that does not contain a Scaffold',
+      ),
       severity: Severity.warning,
       titleBuilder: (_) => 'Wrong Context for Scaffold',
       descriptionBuilder: (_) =>
@@ -194,7 +196,9 @@ class ErrorCatalog {
     ),
     // 12. Navigator operation requested with a context that does not include a Navigator
     ErrorPattern(
-      pattern: RegExp(r'Navigator operation requested with a context that does not include a Navigator'),
+      pattern: RegExp(
+        r'Navigator operation requested with a context that does not include a Navigator',
+      ),
       severity: Severity.critical,
       titleBuilder: (_) => 'Navigator Not Found',
       descriptionBuilder: (_) =>
@@ -233,7 +237,9 @@ class ErrorCatalog {
     ),
     // 15. setState() or markNeedsBuild() called during build
     ErrorPattern(
-      pattern: RegExp(r'setState\(\) or markNeedsBuild\(\) called during build'),
+      pattern: RegExp(
+        r'setState\(\) or markNeedsBuild\(\) called during build',
+      ),
       severity: Severity.warning,
       titleBuilder: (_) => 'setState During Build',
       descriptionBuilder: (_) =>
@@ -286,11 +292,12 @@ class ErrorCatalog {
     ),
     // 19. HTTP status codes
     ErrorPattern(
-      pattern: RegExp(r'(?:HTTP|http|Http)\s*(?:status|error|response)?[:\s]*([45]\d{2})'),
+      pattern: RegExp(
+        r'(?:HTTP|http|Http)\s*(?:status|error|response)?[:\s]*([45]\d{2})',
+      ),
       severity: Severity.warning,
       titleBuilder: (m) => 'HTTP Error ${m[1]}',
-      descriptionBuilder: (m) =>
-          'Received HTTP ${m[1]} response.',
+      descriptionBuilder: (m) => 'Received HTTP ${m[1]} response.',
       suggestions: [
         'Check your API endpoint URL for typos',
         'Verify authentication token is valid and not expired',
@@ -325,7 +332,9 @@ class ErrorCatalog {
     ),
     // 22. LateInitializationError
     ErrorPattern(
-      pattern: RegExp(r"LateInitializationError: Field '(\w+)' has not been initialized"),
+      pattern: RegExp(
+        r"LateInitializationError: Field '(\w+)' has not been initialized",
+      ),
       severity: Severity.critical,
       titleBuilder: (m) => 'Late Field Not Initialized: ${m[1]}',
       descriptionBuilder: (m) =>
@@ -342,8 +351,7 @@ class ErrorCatalog {
       pattern: RegExp(r'SocketException:?\s*(.+)'),
       severity: Severity.warning,
       titleBuilder: (_) => 'Network Connection Failed',
-      descriptionBuilder: (m) =>
-          'Cannot connect to the server: ${m[1]}',
+      descriptionBuilder: (m) => 'Cannot connect to the server: ${m[1]}',
       suggestions: [
         'Check device internet connectivity',
         'Verify the server URL is correct and reachable',

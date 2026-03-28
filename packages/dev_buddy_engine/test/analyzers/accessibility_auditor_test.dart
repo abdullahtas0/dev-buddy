@@ -106,9 +106,26 @@ void main() {
 
     test('calculates score correctly', () {
       final result = auditor.audit([
-        const SemanticElementInfo(isButton: true, hasAction: true, width: 48, height: 48, label: 'OK'), // pass
-        const SemanticElementInfo(isButton: true, hasAction: true, width: 20, height: 20), // fail (2 findings)
-        const SemanticElementInfo(isButton: true, hasAction: true, width: 48, height: 48, label: 'Cancel'), // pass
+        const SemanticElementInfo(
+          isButton: true,
+          hasAction: true,
+          width: 48,
+          height: 48,
+          label: 'OK',
+        ), // pass
+        const SemanticElementInfo(
+          isButton: true,
+          hasAction: true,
+          width: 20,
+          height: 20,
+        ), // fail (2 findings)
+        const SemanticElementInfo(
+          isButton: true,
+          hasAction: true,
+          width: 48,
+          height: 48,
+          label: 'Cancel',
+        ), // pass
       ]);
 
       expect(result.totalElements, 3);
@@ -133,7 +150,13 @@ void main() {
 
     test('toJson serializes correctly', () {
       final result = auditor.audit([
-        const SemanticElementInfo(isButton: true, hasAction: true, width: 48, height: 48, label: 'OK'),
+        const SemanticElementInfo(
+          isButton: true,
+          hasAction: true,
+          width: 48,
+          height: 48,
+          label: 'OK',
+        ),
       ]);
 
       final json = result.toJson();

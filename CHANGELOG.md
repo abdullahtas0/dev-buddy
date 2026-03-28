@@ -2,6 +2,35 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.1] - 2026-03-28
+
+### Added
+- **Typed event metadata** — Sealed `EventMetadata` hierarchy (Performance, Network, Rebuild, Memory, Correlation, Custom) with backwards-compatible `metadata` Map accessor
+- **MCP pagination** — `offset` parameter on `search_events`, `search_network`, `search_state` tools
+- **Correlation runtime API** — `addRule()`, `removeRule()`, `replaceRules()` for dynamic rule management
+- **DataSanitizer patterns** — GCP API key, GitHub token, SSN, phone number, strict-mode IP address (14 total, was 9)
+- **HTTP adapter streaming safety** — `maxCaptureBytes` threshold (10MB default); responses above threshold pass through without buffering
+- **EventBus monitoring** — `isDisposed`, `utilizationPercent` properties for backpressure awareness
+- **StateStore version guard** — Optional `sourceVersion` parameter prevents hash collision false negatives
+- 50+ new stress tests (10K events, budget pressure, 5000+ event correlation evaluation)
+- Per-package CHANGELOG.md for engine, bloc, mcp, riverpod, devtools
+- Per-package README.md for bloc, mcp, riverpod, devtools
+
+### Changed
+- **EventBus O(1) performance** — Switched from `insert(0, ...)` to `add()` + reversed view
+- **Dependency inversion** — `dev_buddy_dio` and `dev_buddy_http` now depend on `dev_buddy_engine` (pure Dart) instead of `dev_buddy` (Flutter)
+- **Dio request tracking** — Replaced hashCode-based request ID with atomic counter + identityHashCode
+- **Diff truncation** — Riverpod/BLoC observers truncate diffs to `maxDiffLength` (1024 chars) to prevent StateStore bloat
+- **Correlation constants** — Extracted magic numbers to named constants (`networkJankWindowMs`, `authFailureThreshold`, `largeResponseThresholdBytes`)
+- All packages aligned to version 0.2.0 (dev_buddy, dev_buddy_dio, dev_buddy_http were at 0.1.0)
+- Publish workflow now includes all 8 packages (was 3)
+- Example app uses root analysis_options.yaml
+
+### Fixed
+- **DevTools error safety** — All service extension handlers wrapped in `_safeHandle()` try-catch
+- **NetworkModule memory leak** — Added periodic cleanup timer (60s) for request list
+- **HTTP adapter OOM** — Large responses no longer buffered entirely in RAM
+
 ## [0.2.0] - 2026-03-28
 
 ### Added

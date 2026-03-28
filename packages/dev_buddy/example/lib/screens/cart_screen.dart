@@ -31,17 +31,22 @@ class _CartScreenState extends State<CartScreen> {
     final items = _cart.items;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Cart (${_cart.itemCount})'),
-      ),
+      appBar: AppBar(title: Text('Cart (${_cart.itemCount})')),
       body: items.isEmpty
           ? const Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.shopping_cart_outlined, size: 64, color: Colors.grey),
+                  Icon(
+                    Icons.shopping_cart_outlined,
+                    size: 64,
+                    color: Colors.grey,
+                  ),
                   SizedBox(height: 16),
-                  Text('Your cart is empty', style: TextStyle(fontSize: 18, color: Colors.grey)),
+                  Text(
+                    'Your cart is empty',
+                    style: TextStyle(fontSize: 18, color: Colors.grey),
+                  ),
                 ],
               ),
             )
@@ -69,7 +74,8 @@ class _CartScreenState extends State<CartScreen> {
                                   height: 60,
                                   fit: BoxFit.cover,
                                   errorBuilder: (_, __, ___) => Container(
-                                    width: 60, height: 60,
+                                    width: 60,
+                                    height: 60,
                                     color: Colors.grey.shade200,
                                     child: const Icon(Icons.image, size: 24),
                                   ),
@@ -80,11 +86,21 @@ class _CartScreenState extends State<CartScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(item.product.name,
-                                        style: const TextStyle(fontWeight: FontWeight.w600),
-                                        maxLines: 1, overflow: TextOverflow.ellipsis),
-                                    Text('\$${item.product.price.toStringAsFixed(2)}',
-                                        style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
+                                    Text(
+                                      item.product.name,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    Text(
+                                      '\$${item.product.price.toStringAsFixed(2)}',
+                                      style: TextStyle(
+                                        color: Colors.grey.shade600,
+                                        fontSize: 13,
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),
@@ -92,14 +108,27 @@ class _CartScreenState extends State<CartScreen> {
                               Row(
                                 children: [
                                   IconButton(
-                                    icon: const Icon(Icons.remove_circle_outline),
-                                    onPressed: () => _cart.updateQuantity(item.product.id, -1),
+                                    icon: const Icon(
+                                      Icons.remove_circle_outline,
+                                    ),
+                                    onPressed: () => _cart.updateQuantity(
+                                      item.product.id,
+                                      -1,
+                                    ),
                                   ),
-                                  Text('${item.quantity}',
-                                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+                                  Text(
+                                    '${item.quantity}',
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
                                   IconButton(
                                     icon: const Icon(Icons.add_circle_outline),
-                                    onPressed: () => _cart.updateQuantity(item.product.id, 1),
+                                    onPressed: () => _cart.updateQuantity(
+                                      item.product.id,
+                                      1,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -114,27 +143,49 @@ class _CartScreenState extends State<CartScreen> {
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 8, offset: const Offset(0, -2))],
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 8,
+                        offset: const Offset(0, -2),
+                      ),
+                    ],
                   ),
                   child: Row(
                     children: [
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text('Total', style: TextStyle(color: Colors.grey)),
-                          Text('\$${_cart.totalPrice.toStringAsFixed(2)}',
-                              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800)),
+                          const Text(
+                            'Total',
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                          Text(
+                            '\$${_cart.totalPrice.toStringAsFixed(2)}',
+                            style: const TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
                         ],
                       ),
                       const Spacer(),
                       FilledButton(
                         onPressed: () => Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (_) => const CheckoutScreen()),
+                          MaterialPageRoute(
+                            builder: (_) => const CheckoutScreen(),
+                          ),
                         ),
                         child: const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                          child: Text('Checkout', style: TextStyle(fontSize: 16)),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 4,
+                          ),
+                          child: Text(
+                            'Checkout',
+                            style: TextStyle(fontSize: 16),
+                          ),
                         ),
                       ),
                     ],

@@ -17,9 +17,7 @@ class DevBuddyExporterImpl {
     return {
       'generatedAt': report.generatedAt.toIso8601String(),
       'deviceInfo': Map<String, dynamic>.from(report.deviceInfo),
-      'events': [
-        for (final event in report.events) event.toJson(),
-      ],
+      'events': [for (final event in report.events) event.toJson()],
     };
   }
 
@@ -51,8 +49,10 @@ class DevBuddyExporterImpl {
     buffer.writeln();
 
     for (final (index, event) in report.events.indexed) {
-      buffer.writeln('#${index + 1} [${event.severity.name.toUpperCase()}] '
-          '${event.module} - ${event.title}');
+      buffer.writeln(
+        '#${index + 1} [${event.severity.name.toUpperCase()}] '
+        '${event.module} - ${event.title}',
+      );
       buffer.writeln('   ${event.description}');
       if (event.suggestions.isNotEmpty) {
         buffer.writeln('   Suggestions:');

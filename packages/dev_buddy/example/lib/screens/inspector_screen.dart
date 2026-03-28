@@ -33,14 +33,21 @@ class _InspectorScreenState extends State<InspectorScreen> {
   void _getEvents() {
     final ctrl = _controller;
     if (ctrl == null) return;
-    final events = ctrl.engine.eventBus.history.take(10).map((e) => {
-          'module': e.module,
-          'severity': e.severity.name,
-          'title': e.title,
-          'time': e.timestamp.toIso8601String(),
-        }).toList();
+    final events = ctrl.engine.eventBus.history
+        .take(10)
+        .map(
+          (e) => {
+            'module': e.module,
+            'severity': e.severity.name,
+            'title': e.title,
+            'time': e.timestamp.toIso8601String(),
+          },
+        )
+        .toList();
     setState(() {
-      _output = const JsonEncoder.withIndent('  ').convert({'recent_events': events});
+      _output = const JsonEncoder.withIndent(
+        '  ',
+      ).convert({'recent_events': events});
       _eventCount = ctrl.engine.eventBus.length;
     });
   }
@@ -83,8 +90,10 @@ class _InspectorScreenState extends State<InspectorScreen> {
                   style: TextStyle(fontSize: 13, color: Colors.grey),
                 ),
                 const SizedBox(height: 8),
-                Text('Events: $_eventCount',
-                    style: const TextStyle(fontWeight: FontWeight.w600)),
+                Text(
+                  'Events: $_eventCount',
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
                 const SizedBox(height: 12),
                 Wrap(
                   spacing: 8,
