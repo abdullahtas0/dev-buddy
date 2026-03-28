@@ -22,10 +22,10 @@ class FrameAnalyzer {
   final int windowSize;
   final Queue<Duration> _frameDurations = Queue();
 
-  /// Running sum of frame durations in milliseconds.
-  /// Updated incrementally in [addFrameDuration] to avoid
-  /// per-frame iterator allocation in [averageFps].
-  int _totalMs = 0;
+  /// Running sum of frame durations in **microseconds**.
+  /// Uses microseconds instead of milliseconds to avoid integer truncation
+  /// that causes inflated FPS on 120Hz+ devices (8.3ms → 8ms = 125 FPS instead of 120).
+  int _totalUs = 0;
 
   FrameAnalyzer({this.windowSize = 60});
 
@@ -34,19 +34,26 @@ class FrameAnalyzer {
   /// Adds a frame duration to the sliding window.
   void addFrameDuration(Duration duration) {
     _frameDurations.addLast(duration);
-    _totalMs += duration.inMilliseconds;
+    _totalUs += duration.inMicroseconds;
     if (_frameDurations.length > windowSize) {
-      _totalMs -= _frameDurations.removeFirst().inMilliseconds;
+      _totalUs -= _frameDurations.removeFirst().inMicroseconds;
     }
   }
 
   /// Computes average FPS over the sliding window.
-  /// O(1) cost — uses a running sum instead of iterating the queue.
+  /// O(1) cost — uses a running sum in microseconds for precision.
+  /// Microseconds avoids integer truncation that inflates FPS on 120Hz+
+  /// (e.g., 8.3ms truncated to 8ms = 125 FPS instead of correct 120).
+  /// Maximum reportable FPS. Values above this are clamped to avoid
+  /// misleading readings from sub-millisecond idle frames.
+  static const double maxFps = 120.0;
+
   double get averageFps {
     if (_frameDurations.isEmpty) return 0;
-    final avgMs = _totalMs / _frameDurations.length;
-    if (avgMs <= 0) return 0;
-    return 1000.0 / avgMs;
+    final avgUs = _totalUs / _frameDurations.length;
+    if (avgUs <= 0) return 0;
+    final fps = 1000000.0 / avgUs;
+    return fps.clamp(0.0, maxFps);
   }
 
   /// Analyzes a single frame against the jank threshold.
@@ -64,6 +71,6 @@ class FrameAnalyzer {
 
   void reset() {
     _frameDurations.clear();
-    _totalMs = 0;
+    _totalUs = 0;
   }
 }
