@@ -18,9 +18,7 @@ Zero setup. AI-powered. Zero cost in release builds.
 </div>
 
 <p align="center">
-  <video src="https://github.com/user-attachments/assets/demo_video.mp4" width="320" autoplay loop muted playsinline>
-    <img src="screenshots/hero_shop.png" width="320" alt="DevBuddy demo">
-  </video>
+  <img src="screenshots/demo.gif" width="320" alt="DevBuddy demo: browse products, scroll, add to cart, inspect diagnostics">
 </p>
 
 <p align="center">
