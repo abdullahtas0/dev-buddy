@@ -20,13 +20,13 @@ class AuditLogEntry {
   });
 
   /// Serialize to a single JSON line (for .jsonl format).
+  /// Data is nested under 'd' key to prevent key collisions with 't' and 'type'.
   String toJsonLine() {
-    final json = {
+    return jsonEncode({
       't': timestamp.toIso8601String(),
       'type': type,
-      ...data,
-    };
-    return jsonEncode(json);
+      'd': data,
+    });
   }
 
   /// Parse from a single JSON line.
@@ -35,9 +35,9 @@ class AuditLogEntry {
     return AuditLogEntry(
       timestamp: DateTime.parse(json['t'] as String),
       type: json['type'] as String,
-      data: Map<String, dynamic>.from(json)
-        ..remove('t')
-        ..remove('type'),
+      data: json['d'] is Map<String, dynamic>
+          ? json['d'] as Map<String, dynamic>
+          : <String, dynamic>{},
     );
   }
 

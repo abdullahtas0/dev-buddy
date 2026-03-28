@@ -190,7 +190,9 @@ class AccessibilityAuditor {
     }
 
     // Rule 3: Image without description (WCAG 1.1.1)
+    // Skip if already caught by Rule 2 (missing-label covers interactive images)
     if (element.isImage &&
+        !findings.any((f) => f.ruleId == 'missing-label') &&
         (element.label == null || element.label!.isEmpty)) {
       findings.add(AccessibilityFinding(
         ruleId: 'image-no-description',

@@ -30,7 +30,7 @@ class DataSanitizer {
     _PiiPattern(RegExp(r'\b4[0-9]{12}(?:[0-9]{3})?\b'), '[VISA_CARD]'),
     _PiiPattern(RegExp(r'\b5[1-5][0-9]{14}\b'), '[MC_CARD]'),
     _PiiPattern(RegExp(r'\b3[47][0-9]{13}\b'), '[AMEX_CARD]'),
-    _PiiPattern(RegExp(r'eyJ[A-Za-z0-9_]+\.eyJ[A-Za-z0-9_]+\.[A-Za-z0-9_]+'), '[JWT_TOKEN]'),
+    _PiiPattern(RegExp(r'eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+'), '[JWT_TOKEN]'),
     _PiiPattern(RegExp(r'Bearer\s+\S+', caseSensitive: false), '[AUTH_TOKEN]'),
     _PiiPattern(RegExp(r'AKIA[0-9A-Z]{16}'), '[AWS_KEY]'),
     _PiiPattern(RegExp(r'(?:sk_live_|sk_test_|pk_live_|rk_live_)\w{20,}', caseSensitive: false), '[STRIPE_KEY]'),

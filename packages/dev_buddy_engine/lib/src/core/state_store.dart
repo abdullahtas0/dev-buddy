@@ -76,7 +76,9 @@ class StateStore {
   final _controller = StreamController<StateSnapshot>.broadcast();
   int _version = 0;
   int _totalSizeBytes = 0;
-  int _snapshotsSinceAnchor = 0;
+
+  /// Anchor tracking per source — ensures each source gets its own anchors.
+  final Map<String, int> _snapshotsSinceAnchor = {};
 
   /// Last hashCode per source — for pre-filtering unchanged state.
   final Map<String, int> _lastHashCodes = {};
@@ -124,10 +126,11 @@ class StateStore {
     _lastHashCodes[source] = stateHashCode;
 
     _version++;
-    _snapshotsSinceAnchor++;
+    final sourceCount = (_snapshotsSinceAnchor[source] ?? 0) + 1;
+    _snapshotsSinceAnchor[source] = sourceCount;
 
-    final isAnchor = _snapshotsSinceAnchor >= anchorInterval;
-    if (isAnchor) _snapshotsSinceAnchor = 0;
+    final isAnchor = sourceCount >= anchorInterval;
+    if (isAnchor) _snapshotsSinceAnchor[source] = 0;
 
     final data = isAnchor ? serializedState : (serializedDiff ?? serializedState);
     final estimatedSize = (data?.length ?? 0) +
@@ -183,7 +186,7 @@ class StateStore {
   void clear() {
     _ring.clear();
     _totalSizeBytes = 0;
-    _snapshotsSinceAnchor = 0;
+    _snapshotsSinceAnchor.clear();
     _lastHashCodes.clear();
   }
 

@@ -88,18 +88,20 @@ void main() {
       expect(result.findings, isEmpty);
     });
 
-    test('detects image without description', () {
+    test('detects image without description (caught by missing-label)', () {
       final result = auditor.audit([
         const SemanticElementInfo(
           isImage: true,
           width: 200,
           height: 200,
-          // No label — fires both missing-label and image-no-description
+          // No label — Rule 2 (missing-label) catches this
         ),
       ]);
 
       final ruleIds = result.findings.map((f) => f.ruleId).toSet();
-      expect(ruleIds, contains('image-no-description'));
+      expect(ruleIds, contains('missing-label'));
+      // Rule 3 (image-no-description) is suppressed since Rule 2 already fired
+      expect(ruleIds, isNot(contains('image-no-description')));
     });
 
     test('calculates score correctly', () {

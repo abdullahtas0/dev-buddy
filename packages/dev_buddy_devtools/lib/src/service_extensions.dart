@@ -5,8 +5,9 @@ import 'package:dev_buddy_engine/dev_buddy_engine.dart';
 
 /// Registers `ext.dev_buddy.*` service extensions with the Dart VM.
 ///
-/// These extensions allow DevTools and external tools to query
-/// DevBuddy diagnostics via the VM Service Protocol.
+/// Service extensions can only be registered once per isolate in Dart.
+/// If the engine is recreated (e.g., hot restart), the extensions
+/// automatically point to the latest engine via the mutable reference.
 ///
 /// Call once during engine initialization:
 /// ```dart
@@ -14,23 +15,33 @@ import 'package:dev_buddy_engine/dev_buddy_engine.dart';
 /// ```
 class DevBuddyServiceExtensions {
   static bool _registered = false;
+  static DevBuddyEngine? _engine;
 
   /// Register all DevBuddy service extensions.
+  /// Safe to call multiple times — subsequent calls update the engine reference.
   static void register(DevBuddyEngine engine) {
-    if (_registered) return;
+    _engine = engine;
+
+    if (_registered) return; // Extensions already registered, just update ref
     _registered = true;
 
     registerExtension('ext.dev_buddy.snapshot', (method, params) async {
+      if (_engine == null) {
+        return ServiceExtensionResponse.error(0, 'Engine not available');
+      }
       return ServiceExtensionResponse.result(
-        jsonEncode(engine.snapshot()),
+        jsonEncode(_engine!.snapshot()),
       );
     });
 
     registerExtension('ext.dev_buddy.events', (method, params) async {
+      if (_engine == null) {
+        return ServiceExtensionResponse.error(0, 'Engine not available');
+      }
       final limit = int.tryParse(params['limit'] ?? '20') ?? 20;
       final module = params['module'];
 
-      var events = engine.eventBus.history;
+      var events = _engine!.eventBus.history;
       if (module != null) {
         events = events.where((e) => e.module == module).toList();
       }
@@ -44,10 +55,13 @@ class DevBuddyServiceExtensions {
     });
 
     registerExtension('ext.dev_buddy.state', (method, params) async {
+      if (_engine == null) {
+        return ServiceExtensionResponse.error(0, 'Engine not available');
+      }
       final limit = int.tryParse(params['limit'] ?? '10') ?? 10;
       final source = params['source'];
 
-      var snapshots = engine.stateStore.history;
+      var snapshots = _engine!.stateStore.history;
       if (source != null) {
         snapshots = snapshots.where((s) => s.source.contains(source)).toList();
       }
@@ -55,15 +69,18 @@ class DevBuddyServiceExtensions {
       return ServiceExtensionResponse.result(
         jsonEncode({
           'total': snapshots.length,
-          'budget_usage': engine.stateStore.budgetUsagePercent,
+          'budget_usage': _engine!.stateStore.budgetUsagePercent,
           'snapshots': snapshots.take(limit).map((s) => s.toJson()).toList(),
         }),
       );
     });
 
     registerExtension('ext.dev_buddy.clear', (method, params) async {
-      engine.clearEvents();
-      engine.stateStore.clear();
+      if (_engine == null) {
+        return ServiceExtensionResponse.error(0, 'Engine not available');
+      }
+      _engine!.clearEvents();
+      _engine!.stateStore.clear();
       return ServiceExtensionResponse.result(jsonEncode({'cleared': true}));
     });
   }
