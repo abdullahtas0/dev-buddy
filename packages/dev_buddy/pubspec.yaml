@@ -1,0 +1,40 @@
+# dev_buddy/packages/dev_buddy/pubspec.yaml
+name: dev_buddy
+description: "Human-readable Flutter diagnostics overlay. Translates DevTools metrics into actionable fix suggestions with zero external dependencies."
+version: 0.1.0
+homepage: https://github.com/abdullah017/dev_buddy
+repository: https://github.com/abdullah017/dev_buddy/tree/main/packages/dev_buddy
+issue_tracker: https://github.com/abdullah017/dev_buddy/issues
+
+topics:
+  - debugging
+  - devtools
+  - performance
+  - diagnostics
+  - developer-tools
+
+screenshots:
+  - description: "DevBuddy overlay on home screen"
+    path: ../../screenshots/huawei_home_final.png
+  - description: "Diagnostic panel with events"
+    path: ../../screenshots/huawei_panel_events.png
+  - description: "Panel open with module tabs"
+    path: ../../screenshots/huawei_panel_open.png
+  - description: "Jank detection in action"
+    path: ../../screenshots/huawei_jank.png
+
+environment:
+  sdk: ^3.11.3
+  flutter: ">=3.10.0"
+
+resolution: workspace
+
+dependencies:
+  flutter:
+    sdk: flutter
+  dev_buddy_engine: ^0.2.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  lints: ^4.0.0

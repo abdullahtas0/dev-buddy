@@ -1,0 +1,26 @@
+name: dev_buddy_bloc
+description: "BLoC state tracking adapter for DevBuddy. Records bloc/cubit transitions for time-travel debugging."
+version: 0.2.0
+homepage: https://github.com/abdullah017/dev_buddy
+repository: https://github.com/abdullah017/dev_buddy/tree/main/packages/dev_buddy_bloc
+issue_tracker: https://github.com/abdullah017/dev_buddy/issues
+
+topics:
+  - debugging
+  - bloc
+  - state-management
+  - diagnostics
+  - developer-tools
+
+environment:
+  sdk: ^3.11.3
+
+resolution: workspace
+
+dependencies:
+  dev_buddy_engine: ^0.2.0
+  bloc: ">=8.0.0 <10.0.0"
+
+dev_dependencies:
+  lints: ^4.0.0
+  test: ^1.24.0

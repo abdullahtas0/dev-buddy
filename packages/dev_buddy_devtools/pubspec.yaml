@@ -1,0 +1,29 @@
+name: dev_buddy_devtools
+description: "DevTools extension for DevBuddy. Shows diagnostics inside Flutter DevTools."
+version: 0.2.0
+homepage: https://github.com/abdullah017/dev_buddy
+repository: https://github.com/abdullah017/dev_buddy/tree/main/packages/dev_buddy_devtools
+issue_tracker: https://github.com/abdullah017/dev_buddy/issues
+
+topics:
+  - debugging
+  - devtools
+  - diagnostics
+  - developer-tools
+  - flutter
+
+environment:
+  sdk: ^3.11.3
+  flutter: ">=3.10.0"
+
+resolution: workspace
+
+dependencies:
+  dev_buddy_engine: ^0.2.0
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  lints: ^4.0.0

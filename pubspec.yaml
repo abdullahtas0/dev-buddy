@@ -1,0 +1,21 @@
+name: dev_buddy_workspace
+description: DevBuddy monorepo workspace.
+version: 0.0.0
+publish_to: none
+
+environment:
+  sdk: ^3.11.3
+
+workspace:
+  - packages/dev_buddy_engine
+  - packages/dev_buddy
+  - packages/dev_buddy/example
+  - packages/dev_buddy_dio
+  - packages/dev_buddy_http
+  - packages/dev_buddy_riverpod
+  - packages/dev_buddy_bloc
+  - packages/dev_buddy_mcp
+  - packages/dev_buddy_devtools
+
+dev_dependencies:
+  melos: ^7.5.0

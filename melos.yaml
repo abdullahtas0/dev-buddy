@@ -1,0 +1,59 @@
+# dev_buddy/melos.yaml
+name: dev_buddy
+repository: https://github.com/abdullah017/dev_buddy
+
+packages:
+  - packages/*
+  - packages/*/example
+
+command:
+  bootstrap:
+    runPubGetInParallel: true
+
+scripts:
+  analyze:
+    run: melos exec -c 5 -- "dart analyze . --fatal-infos"
+    description: Run dart analyze in all packages
+
+  format:
+    run: melos exec -c 5 -- "dart format --set-exit-if-changed ."
+    description: Check formatting in all packages
+
+  format:fix:
+    run: melos exec -c 5 -- "dart format ."
+    description: Fix formatting in all packages
+
+  test:
+    run: melos exec -c 3 --fail-fast -- "flutter test --no-pub"
+    description: Run tests in all packages
+    packageFilters:
+      dirExists:
+        - test
+      ignore:
+        - "*example*"
+
+  test:coverage:
+    run: melos exec -c 1 --fail-fast -- "flutter test --coverage --no-pub"
+    description: Run tests with coverage
+    packageFilters:
+      dirExists:
+        - test
+      ignore:
+        - "*example*"
+
+  lint:all:
+    run: melos run analyze && melos run format
+    description: Run all static analysis checks
+
+  publish:dry:
+    run: melos exec -c 1 -- "dart pub publish --dry-run"
+    description: Dry-run publish for all packages
+    packageFilters:
+      ignore:
+        - "*example*"
+
+  qualitycheck:
+    run: >
+      melos clean && melos bootstrap &&
+      melos run lint:all && melos run test
+    description: Full CI pipeline locally

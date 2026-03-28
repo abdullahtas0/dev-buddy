@@ -1,0 +1,29 @@
+# dev_buddy/packages/dev_buddy_http/pubspec.yaml
+name: dev_buddy_http
+description: "http package adapter for DevBuddy. Wraps http.Client to capture request timing and status codes for the DevBuddy diagnostics overlay."
+version: 0.1.0
+homepage: https://github.com/abdullah017/dev_buddy
+repository: https://github.com/abdullah017/dev_buddy/tree/main/packages/dev_buddy_http
+issue_tracker: https://github.com/abdullah017/dev_buddy/issues
+
+topics:
+  - debugging
+  - http
+  - network
+  - diagnostics
+  - developer-tools
+
+environment:
+  sdk: ^3.11.3
+  flutter: ">=3.10.0"
+
+resolution: workspace
+
+dependencies:
+  dev_buddy: ^0.1.0
+  http: ">=1.0.0 <3.0.0"
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  lints: ^4.0.0

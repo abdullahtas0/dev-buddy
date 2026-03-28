@@ -1,0 +1,33 @@
+appId: com.devbuddy.dev_buddy_example
+---
+
+# Generate some events first
+- launchApp
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible: "DevBuddy Demos"
+    timeout: 15000
+
+# Go to Jank Demo to generate performance events
+- tapOn: "Jank Demo.*"
+- waitForAnimationToEnd
+- scroll
+- scroll
+- scroll
+- back
+- extendedWaitUntil:
+    visible: "DevBuddy Demos"
+    timeout: 5000
+
+# Go to Error Demo to generate error events
+- tapOn: "Error Demo.*"
+- waitForAnimationToEnd
+- back
+- extendedWaitUntil:
+    visible: "DevBuddy Demos"
+    timeout: 5000
+
+# Now open the panel
+- tapOn: "DevBuddy.*FPS.*"
+- waitForAnimationToEnd
+- takeScreenshot: panel_with_events

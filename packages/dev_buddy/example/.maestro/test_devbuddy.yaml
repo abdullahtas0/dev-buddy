@@ -1,0 +1,75 @@
+appId: com.devbuddy.dev_buddy_example
+---
+
+# Wait for app to fully load
+- launchApp
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible: "DevBuddy Demos"
+    timeout: 15000
+
+# Test 1: Home screen assertions
+- assertVisible: "DevBuddy Demos"
+- assertVisible: "Jank Demo.*"
+- assertVisible: "Error Demo.*"
+- assertVisible: "Network Demo.*"
+- assertVisible: "Memory Demo.*"
+- assertVisible: "Rebuild Demo.*"
+- assertVisible: "DevBuddy.*FPS.*"
+- takeScreenshot: 01_home
+
+# Test 2: Jank Demo navigation
+- tapOn: "Jank Demo.*"
+- waitForAnimationToEnd
+- takeScreenshot: 02_jank
+- scroll
+- scroll
+- takeScreenshot: 03_jank_scrolled
+- back
+- extendedWaitUntil:
+    visible: "DevBuddy Demos"
+    timeout: 5000
+
+# Test 3: Error Demo navigation
+- tapOn: "Error Demo.*"
+- waitForAnimationToEnd
+- takeScreenshot: 04_error
+- back
+- extendedWaitUntil:
+    visible: "DevBuddy Demos"
+    timeout: 5000
+
+# Test 4: Network Demo + trigger 401
+- tapOn: "Network Demo.*"
+- waitForAnimationToEnd
+- takeScreenshot: 05_network
+- tapOn: "401 Unauthorized.*"
+- waitForAnimationToEnd
+- takeScreenshot: 06_network_401
+- back
+- extendedWaitUntil:
+    visible: "DevBuddy Demos"
+    timeout: 5000
+
+# Test 5: Memory Demo
+- tapOn: "Memory Demo.*"
+- waitForAnimationToEnd
+- takeScreenshot: 07_memory
+- back
+- extendedWaitUntil:
+    visible: "DevBuddy Demos"
+    timeout: 5000
+
+# Test 6: Rebuild Demo
+- tapOn: "Rebuild Demo.*"
+- waitForAnimationToEnd
+- takeScreenshot: 08_rebuild
+- back
+- extendedWaitUntil:
+    visible: "DevBuddy Demos"
+    timeout: 5000
+
+# Test 7: Open diagnostic panel
+- tapOn: "DevBuddy.*FPS.*"
+- waitForAnimationToEnd
+- takeScreenshot: 09_panel

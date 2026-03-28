@@ -1,0 +1,5 @@
+name: dev_buddy
+issueTracker: https://github.com/abdullah017/dev_buddy/issues
+version: 0.2.0
+materialIconCodePoint: '0xe1a3'
+requiresConnection: true

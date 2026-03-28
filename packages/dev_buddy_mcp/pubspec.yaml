@@ -1,0 +1,28 @@
+name: dev_buddy_mcp
+description: "MCP server for DevBuddy. Exposes diagnostics as AI-queryable tools for Claude Code, Cursor, and Copilot."
+version: 0.2.0
+homepage: https://github.com/abdullah017/dev_buddy
+repository: https://github.com/abdullah017/dev_buddy/tree/main/packages/dev_buddy_mcp
+issue_tracker: https://github.com/abdullah017/dev_buddy/issues
+
+topics:
+  - debugging
+  - mcp
+  - ai
+  - diagnostics
+  - developer-tools
+
+environment:
+  sdk: ^3.11.3
+
+resolution: workspace
+
+dependencies:
+  dev_buddy_engine: ^0.2.0
+
+dev_dependencies:
+  lints: ^4.0.0
+  test: ^1.24.0
+
+executables:
+  dev_buddy_mcp: server

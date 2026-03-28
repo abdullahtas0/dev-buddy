@@ -1,0 +1,37 @@
+# Dart/Flutter
+.dart_tool/
+.packages
+build/
+pubspec.lock
+*.iml
+.idea/
+
+# Flutter specific
+.flutter-plugins
+.flutter-plugins-dependencies
+**/ios/Flutter/
+**/android/.gradle/
+**/android/local.properties
+**/ios/Pods/
+**/.symlinks/
+**/Generated.xcconfig
+**/flutter_export_environment.sh
+
+# Coverage
+coverage/
+*.lcov
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+*.swp
+*.swo
+
+# Melos
+.melos/
+
+# Serena
+.serena/

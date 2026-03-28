@@ -1,0 +1,24 @@
+name: dev_buddy_engine
+description: "Pure Dart diagnostic engine for DevBuddy. Provides event processing, analyzers, and export — zero Flutter dependency."
+version: 0.2.0
+homepage: https://github.com/abdullah017/dev_buddy
+repository: https://github.com/abdullah017/dev_buddy/tree/main/packages/dev_buddy_engine
+issue_tracker: https://github.com/abdullah017/dev_buddy/issues
+
+topics:
+  - debugging
+  - diagnostics
+  - developer-tools
+  - performance
+  - logging
+
+environment:
+  sdk: ^3.11.3
+
+resolution: workspace
+
+dev_dependencies:
+  lints: ^4.0.0
+  test: ^1.24.0
+
+# ZERO external dependencies - pure Dart only
