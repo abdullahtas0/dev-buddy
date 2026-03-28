@@ -80,7 +80,7 @@ class MemoryModule extends DevBuddyModule {
     'name': name,
     'current_rss_mb': _sampler.latestMb,
     'peak_rss_mb': _sampler.peakMb,
-    'growth_rate_mb_per_min': _sampler.growthRate,
+    'growth_mb_in_window': _sampler.growthRate,
     'sample_count': _sampler.samples.length,
   };
 

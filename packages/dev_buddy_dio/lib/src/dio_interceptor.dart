@@ -27,8 +27,9 @@ class DevBuddyDioInterceptor extends Interceptor {
   /// Whether to capture request/response body previews.
   final bool captureBody;
 
-  /// Atomic counter for unique request IDs — avoids hashCode collisions.
-  static int _nextRequestId = 0;
+  /// Per-instance counter for unique request IDs.
+  /// Instance field (not static) so multiple Dio clients get independent IDs.
+  int _nextRequestId = 0;
 
   /// Maps request identity hash → (requestId, startTime).
   /// Uses [identityHashCode] which is stable for the object's lifetime.

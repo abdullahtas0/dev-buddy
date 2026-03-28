@@ -85,21 +85,25 @@ class DataSanitizer {
     });
   }
 
-  /// Sanitize a body string (truncate + PII scrub).
+  /// Sanitize a body string (truncate first, then PII scrub).
+  ///
+  /// Truncates before scrubbing to avoid running 14 regex patterns
+  /// on arbitrarily large input (e.g., 50KB response bodies).
   String sanitizeBody(String body) {
     if (level == SanitizationLevel.none) return body;
 
     var result = body;
+    final originalLength = body.length;
 
-    // PII scrubbing
-    if (level.index >= SanitizationLevel.moderate.index) {
-      result = _scrubPii(result);
-    }
-
-    // Truncation
+    // Truncate first — performance guard for large payloads
     if (result.length > maxBodyLength) {
       result =
-          '${result.substring(0, maxBodyLength)}... [TRUNCATED ${result.length - maxBodyLength} chars]';
+          '${result.substring(0, maxBodyLength)}... [TRUNCATED ${originalLength - maxBodyLength} chars]';
+    }
+
+    // PII scrubbing (runs on truncated content — fast)
+    if (level.index >= SanitizationLevel.moderate.index) {
+      result = _scrubPii(result);
     }
 
     return result;
