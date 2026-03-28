@@ -3,10 +3,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:dev_buddy/dev_buddy.dart';
 
-import 'pages/jank_demo_page.dart';
+import 'pages/correlation_demo_page.dart';
+import 'pages/engine_demo_page.dart';
 import 'pages/error_demo_page.dart';
-import 'pages/network_demo_page.dart';
+import 'pages/jank_demo_page.dart';
 import 'pages/memory_demo_page.dart';
+import 'pages/network_demo_page.dart';
 import 'pages/rebuild_demo_page.dart';
 
 void main() {
@@ -119,6 +121,37 @@ class HomePage extends StatelessWidget {
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const RebuildDemoPage()),
+            ),
+          ),
+          const Divider(height: 32),
+          Text(
+            'v2.0 Features',
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 12),
+          _DemoCard(
+            icon: Icons.camera,
+            title: 'Engine Snapshot',
+            subtitle: 'Query the DevBuddyEngine API directly. '
+                'Shows what MCP tools (Claude Code) see.',
+            color: Colors.indigo,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const EngineDemoPage()),
+            ),
+          ),
+          _DemoCard(
+            icon: Icons.hub,
+            title: 'Correlation Demo',
+            subtitle: 'Trigger compound scenarios (jank+rebuilds, '
+                'memory growth) and see cross-signal insights.',
+            color: Colors.deepOrange,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const CorrelationDemoPage()),
             ),
           ),
         ],
