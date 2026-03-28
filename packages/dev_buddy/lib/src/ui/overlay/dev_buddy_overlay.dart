@@ -6,6 +6,7 @@ import '../../core/dev_buddy_config.dart';
 import '../../core/dev_buddy_controller.dart';
 import '../../core/dev_buddy_module.dart';
 import '../../core/dev_buddy_scope.dart';
+import '../../core/diagnostic_server.dart';
 import '../../modules/performance/performance_module.dart';
 import '../panel/dev_buddy_panel.dart';
 import 'draggable_pill.dart';
@@ -18,12 +19,22 @@ class DevBuddyOverlayImpl extends StatefulWidget {
   final List<DevBuddyModule> modules;
   final DevBuddyConfig? config;
 
+  /// Enable the MCP diagnostic server on localhost.
+  /// When true, starts an HTTP server that Claude Code can query.
+  /// Default port: 8585. Only active in debug mode.
+  final bool enableMcpServer;
+
+  /// Port for the MCP diagnostic server. Default: 8585.
+  final int mcpServerPort;
+
   const DevBuddyOverlayImpl({
     super.key,
     required this.child,
     this.enabled = true,
     this.modules = const [],
     this.config,
+    this.enableMcpServer = true,
+    this.mcpServerPort = 8585,
   });
 
   @override
@@ -36,6 +47,7 @@ class _DevBuddyOverlayImplState extends State<DevBuddyOverlayImpl> {
   bool _panelOpen = false;
   Timer? _fpsTimer;
   PerformanceModule? _perfModule;
+  DevBuddyDiagnosticServer? _diagnosticServer;
 
   @override
   void initState() {
@@ -61,12 +73,22 @@ class _DevBuddyOverlayImplState extends State<DevBuddyOverlayImpl> {
           _fps.value = _perfModule!.currentFps;
         }
       });
+
+      // Start MCP diagnostic server for Claude Code integration
+      if (widget.enableMcpServer) {
+        _diagnosticServer = DevBuddyDiagnosticServer(
+          engine: _controller.engine,
+          port: widget.mcpServerPort,
+        );
+        _diagnosticServer!.start();
+      }
     }
   }
 
   @override
   void dispose() {
     _fpsTimer?.cancel();
+    _diagnosticServer?.stop();
     if (widget.enabled) {
       _controller.dispose();
     }
